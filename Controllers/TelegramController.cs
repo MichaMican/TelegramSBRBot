@@ -27,8 +27,8 @@ namespace TelegramFunFactBot.Controllers
         [HttpPost("new-message")]
         public ActionResult NewMessage([FromBody]dynamic body)
         {
-            _dapperDB.WriteRequestLog(body.ToString());
             _commandHandler.HandleCommand(body);
+            _dapperDB.WriteRequestLog(body.ToString());
             return Ok();
         }
     }

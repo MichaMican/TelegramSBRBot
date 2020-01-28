@@ -43,7 +43,14 @@ namespace TelegramFunFactBot.Classes.Dapper
         public async void WriteRequestLog(string jsonString)
         {
             var objToInsert = new RequestLog();
-            objToInsert.requestJson = jsonString;
+            if(jsonString.Length < 2000)
+            {
+                objToInsert.requestJson = jsonString;
+            } 
+            else
+            {
+                WriteEventLog("Dapper", "Error", "A Request Json was to long to be saved in DB");
+            }
             objToInsert.timestamp = DateTime.UtcNow;
 
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
