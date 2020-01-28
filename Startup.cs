@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TelegramFunFactBot.Classes;
+using TelegramFunFactBot.Classes.Dapper;
+using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot
 {
@@ -22,6 +25,10 @@ namespace TelegramFunFactBot
         {
 
             services.Configure<Settings>(Configuration.GetSection("AppSettings"));
+
+            services.AddSingleton<ICommandHandler, CommandHandler>();
+            services.AddSingleton<IDapperDB, DapperDB>();
+            services.AddSingleton<ITelegramAPICommunicator, TelegramAPICommunicator>();
 
             services.AddControllersWithViews().AddNewtonsoftJson();
 

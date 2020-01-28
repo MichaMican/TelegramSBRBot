@@ -7,52 +7,28 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using TelegramFunFactBot.Classes.HelperClasses;
+using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot.Controllers
 {
     [Route("api/[controller]")]
     public class TelegramController : Controller
     {
+        private readonly ICommandHandler _commandHandler;
+        private readonly IDapperDB _dapperDB;
 
-        private static readonly HttpClient client = new HttpClient();
-        private Settings AppSettings { get; set; }
-
-
-        public TelegramController(IOptions<Settings> settings)
+        public TelegramController(ICommandHandler commandHandler, IDapperDB dapperDB)
         {
-            AppSettings = settings.Value;
-        }
-
-
-        public class MessageObj
-        {
-            public string chat_id;
-            public string text;
+            _commandHandler = commandHandler;
+            _dapperDB = dapperDB;
         }
 
         [HttpPost("new-message")]
         public ActionResult NewMessage([FromBody]dynamic body)
         {
-            var answer = new MessageObj();
-            try
-            {
-                answer.chat_id = body.message.chat.id;
-                answer.text = body.message.text;
-            }
-            catch
-            {
-                return Ok();
-            }
-
-            var url = "https://api.telegram.org/bot"+ AppSettings.botToken + "/sendMessage";
-
-            var json = JsonConvert.SerializeObject(answer);
-
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var res = client.PostAsync(url,content).Result;
-
-
+            _dapperDB.WriteRequestLog(body.ToString());
+            _commandHandler.HandleCommand(body);
             return Ok();
         }
     }

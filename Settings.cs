@@ -8,5 +8,9 @@ namespace TelegramFunFactBot
     public class Settings
     {
         public string botToken { get; set; }
+        public string dbServer { get; set; }
+        public string dbUser { get; set; }
+        public string dbPwd { get; set; }
+        public string dbInitCat { get; set; }
     }
 }
