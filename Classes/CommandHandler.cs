@@ -129,6 +129,10 @@ namespace TelegramFunFactBot.Classes
                     if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
                     {
                         timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                        if(timeToUpdate < DateTime.Now)
+                        {
+                            timeToUpdate = timeToUpdate.AddDays(1);
+                        }
                     }
                 }
             }
@@ -136,8 +140,6 @@ namespace TelegramFunFactBot.Classes
             {
                 /*Fall through*/
             }
-
-            timeToUpdate.AddDays(1);
 
             _dapperDB.SubscribeToFunFacts(chatId, timeToUpdate);
         }
