@@ -16,8 +16,5 @@ namespace TelegramFunFactBot.Classes.Dapper.Tables
         public string logGroup { get; set; }
         public string message { get; set; }
         public DateTime timestamp { get; set; }
-
-
-
     }
 }

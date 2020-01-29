@@ -25,7 +25,7 @@ namespace TelegramFunFactBot.Classes.Dapper
             builder.InitialCatalog = _settings.dbInitCat;
         }
 
-        public void WriteEventLog(string source, string type, string message, string logGroup = null)
+        public async void WriteEventLog(string source, string type, string message, string logGroup = null)
         {
             var objToInsert = new EventLog();
             objToInsert.source = source;
@@ -36,7 +36,7 @@ namespace TelegramFunFactBot.Classes.Dapper
 
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
-                connection.Insert(objToInsert);
+                await connection.InsertAsync(objToInsert);
             }
         }
 
@@ -56,6 +56,38 @@ namespace TelegramFunFactBot.Classes.Dapper
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
                 await connection.InsertAsync(objToInsert);
+            }
+        }
+
+        public async void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn)
+        {
+            var objToInsert = new FunFactSubscriber();
+            objToInsert.chatId = chatId;
+            objToInsert.nextUpdateOn = nextUpdateOn;
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.InsertAsync(objToInsert);
+            }
+        }
+
+        public async Task<List<FunFactSubscriber>> GetFunFactSubscribers()
+        {
+            var listToReturn = new List<FunFactSubscriber>();
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                listToReturn = (await connection.GetAllAsync<FunFactSubscriber>()).ToList();
+            }
+
+            return listToReturn;
+        }
+
+        public async void UpdateFunFactNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.UpdateAsync(new FunFactSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
             }
         }
     }

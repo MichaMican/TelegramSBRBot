@@ -9,9 +9,11 @@ namespace TelegramFunFactBot.Classes
     public class CommandHandler : ICommandHandler
     {
         private readonly ITelegramAPICommunicator _telegramAPICommunicator;
-        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator)
+        private readonly IDapperDB _dapperDB;
+        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB)
         {
             _telegramAPICommunicator = telegramAPICommunicator;
+            _dapperDB = dapperDB;
         }
 
         public class Entity
@@ -30,7 +32,7 @@ namespace TelegramFunFactBot.Classes
             public static Entity[] convertDynamicToEntitiesArray(dynamic entityArrayDynamic)
             {
                 var returnArray = new Entity[entityArrayDynamic.Count];
-                for(int i = 0; i < entityArrayDynamic.Count; i++)
+                for (int i = 0; i < entityArrayDynamic.Count; i++)
                 {
                     returnArray[i] = new Entity(entityArrayDynamic[i]);
                 }
@@ -43,9 +45,9 @@ namespace TelegramFunFactBot.Classes
             var returnList = new List<string[]>();
             var commandOffsetsList = new List<int>();
 
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
-                if(entity.entityType == "bot_command")
+                if (entity.entityType == "bot_command")
                 {
                     commandOffsetsList.Add(entity.offset);
                 }
@@ -58,7 +60,7 @@ namespace TelegramFunFactBot.Classes
             int startPos = commandOffsetsArray[0]; //Message until first command can be ignored
             for (int i = 1; i < commandOffsetsArray.Length + 1; i++)
             {
-                if(i < commandOffsetsArray.Length)
+                if (i < commandOffsetsArray.Length)
                 {
                     preprocessedCommands[i - 1] = message.Substring(startPos, commandOffsetsArray[i] - startPos);
                     startPos = commandOffsetsArray[i];
@@ -69,7 +71,7 @@ namespace TelegramFunFactBot.Classes
                 }
             }
 
-            foreach(string command in preprocessedCommands)
+            foreach (string command in preprocessedCommands)
             {
                 returnList.Add(command.Split(" "));
             }
@@ -88,9 +90,57 @@ namespace TelegramFunFactBot.Classes
                 commands = DecodeCommand(messageText, entities);
             }
 
-            //TODO handle the command
+            string chatId = body.message.chat.id;
+
+            foreach (string[] command in commands)
+            {
+                try
+                {
+                    switch (command[0])
+                    {
+                        case "/subFunFacts":
+                            SubscribeToFunFacts(command, chatId);
+                            _telegramAPICommunicator.SendMessage("Successfully subscribed to FunFacts by Joseph Paul", chatId);
+                            break;
+                        default:
+                            /* Fall through */
+                            break;
+                    }
+                }
+                catch
+                {
+                    _telegramAPICommunicator.SendMessage("There was an error while processing your command :(", chatId);
+                }
+            }
         }
 
-        
+        private void SubscribeToFunFacts(string[] command, string chatId)
+        {
+            DateTime timeToUpdate = DateTime.Now;
+
+            try
+            {
+                var time = command[1].Split(":");
+                if (time.Length == 2)
+                {
+                    int hours = Int32.Parse(time[0]);
+                    int minutes = Int32.Parse(time[1]);
+
+                    if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                    {
+                        timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                /*Fall through*/
+            }
+
+            timeToUpdate.AddDays(1);
+
+            _dapperDB.SubscribeToFunFacts(chatId, timeToUpdate);
+        }
+
     }
 }

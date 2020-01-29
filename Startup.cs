@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using TelegramFunFactBot.Classes;
 using TelegramFunFactBot.Classes.Dapper;
 using TelegramFunFactBot.Interfaces;
@@ -29,6 +30,8 @@ namespace TelegramFunFactBot
             services.AddSingleton<ICommandHandler, CommandHandler>();
             services.AddSingleton<IDapperDB, DapperDB>();
             services.AddSingleton<ITelegramAPICommunicator, TelegramAPICommunicator>();
+            services.AddSingleton<IInit, Init>();
+            services.AddSingleton<IHttpHandler, HttpHandler>();
 
             services.AddControllersWithViews().AddNewtonsoftJson();
 
@@ -40,7 +43,7 @@ namespace TelegramFunFactBot
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInit init)
         {
             if (env.IsDevelopment())
             {
@@ -75,6 +78,18 @@ namespace TelegramFunFactBot
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+            var timer = new System.Threading.Timer((e) =>
+            {
+                try
+                {
+                    init.CheckForSubscribedServices();
+                }
+                catch
+                {
+                    /* Fall through */
+                }
+            }, null, 1000, 60000);
         }
     }
 }
