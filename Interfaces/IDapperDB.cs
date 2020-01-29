@@ -11,6 +11,7 @@ namespace TelegramFunFactBot.Interfaces
         void WriteEventLog(string source, string type, string message, string logGroup = null);
         void WriteRequestLog(string jsonString);
         void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn);
+        void UnsubscribeFromFunFacts(string chatId);
         void UpdateFunFactNextUpdateOn(string chatId, DateTime nextUpdateOn);
         Task<List<FunFactSubscriber>> GetFunFactSubscribers();
     }

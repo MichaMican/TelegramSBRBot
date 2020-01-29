@@ -98,9 +98,15 @@ namespace TelegramFunFactBot.Classes
                 {
                     switch (command[0])
                     {
-                        case "/subFunFacts":
+                        case "/subfunfacts":
+                        case "/subfunfacts@sbrcs_bot":
                             SubscribeToFunFacts(command, chatId);
                             _telegramAPICommunicator.SendMessage("Successfully subscribed to FunFacts by Joseph Paul", chatId);
+                            break;
+                        case "/unsubfunfacts":
+                        case "/unsubfunfacts@sbrcs_bot":
+                            UnsubscribeFromFunFacts(chatId);
+                            _telegramAPICommunicator.SendMessage("Successfully unsubscribed from FunFacts", chatId);
                             break;
                         default:
                             /* Fall through */
@@ -112,6 +118,11 @@ namespace TelegramFunFactBot.Classes
                     _telegramAPICommunicator.SendMessage("There was an error while processing your command :(", chatId);
                 }
             }
+        }
+
+        private void UnsubscribeFromFunFacts(string chatId)
+        {
+            _dapperDB.UnsubscribeFromFunFacts(chatId);
         }
 
         private void SubscribeToFunFacts(string[] command, string chatId)

@@ -90,5 +90,13 @@ namespace TelegramFunFactBot.Classes.Dapper
                 await connection.UpdateAsync(new FunFactSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
             }
         }
+
+        public async void UnsubscribeFromFunFacts(string chatId)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.DeleteAsync(new FunFactSubscriber { chatId = chatId });
+            }
+        }
     }
 }
