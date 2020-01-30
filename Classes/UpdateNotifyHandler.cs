@@ -29,7 +29,7 @@ namespace TelegramFunFactBot.Classes
                     _dapperDB.UpdateVersion(versionFromFile);
                     string updateLog = System.IO.File.ReadAllText(@"./VERSIONLOG/currentUpdateLog.txt");
 
-                    string updateMessage = "<b>v" + versionFromFile + "</b> \n --------------------------------------- \n" + updateLog;
+                    string updateMessage = "<b>v" + versionFromFile + "</b> \n --------------------------------------- \n" + updateLog + "\n \n If you don't want to receive this messages in the future just type /unsubupdates";
 
                     var subscribers = await _dapperDB.GetAllUpdateSubscriber();
 
