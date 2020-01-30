@@ -101,7 +101,6 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public async Task<string> GetCurrentVersion()
         {
-            string returnString;
             var response = new List<CurrentVersion>();
 
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
