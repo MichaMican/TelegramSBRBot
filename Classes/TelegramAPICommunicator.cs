@@ -20,11 +20,12 @@ namespace TelegramFunFactBot.Classes
             _settings = settings.Value;
         }
 
-        public void SendMessage(string message, string chatId)
+        public void SendMessage(string chatId, string message, string parse_mode = "html")
         {
             var answer = new TelegramAPIMessage();
             answer.chat_id = chatId;
             answer.text = message;
+            answer.parse_mode = parse_mode;
 
             var url = "https://api.telegram.org/bot" + _settings.botToken + "/sendMessage";
 

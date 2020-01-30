@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace TelegramFunFactBot.Interfaces
 {
-    public interface ITelegramAPICommunicator
+    public interface IUpdateNotifyHandler
     {
-        void SendMessage(string chatId, string message, string parse_mode = "html");
+        void checkForUpdates();
     }
 }

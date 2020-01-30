@@ -52,7 +52,7 @@ namespace TelegramFunFactBot.Classes
                         FunFact funFact = JsonConvert.DeserializeObject<FunFact>(responseBody);
 
                         string message = funFact.text + "\n" + "Quelle: " + funFact.source_url;
-                        _telegram.SendMessage(message, subscriber.chatId);
+                        _telegram.SendMessage(subscriber.chatId, message);
                     }
                 }
             } 

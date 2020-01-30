@@ -98,5 +98,71 @@ namespace TelegramFunFactBot.Classes.Dapper
                 await connection.DeleteAsync(new FunFactSubscriber { chatId = chatId });
             }
         }
+
+        public async Task<string> GetCurrentVersion()
+        {
+            var response = new List<CurrentVersion>();
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                response = (await connection.GetAllAsync<CurrentVersion>()).ToList();
+            }
+
+            if (response.Count > 0)
+            {
+                var first = response.First();
+                return first.version;
+            }
+            else
+            {
+                throw new Exception("No version was found in DB");
+            }
+
+        }
+
+        public void UpdateVersion(string newVersion)
+        {
+            var versionUpdate = new CurrentVersion();
+            versionUpdate.version = newVersion;
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                connection.DeleteAll<CurrentVersion>();
+
+
+                connection.Insert(versionUpdate);
+            }
+        }
+
+        public async Task<List<UpdateLogSubscriber>> GetAllUpdateSubscriber()
+        {
+            var returnList = new List<UpdateLogSubscriber>();
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                returnList = (await connection.GetAllAsync<UpdateLogSubscriber>()).ToList();
+            }
+
+            return returnList;
+        }
+
+        public async void SubscribeToUpdateLog(string chatId)
+        {
+            var objToInsert = new UpdateLogSubscriber();
+            objToInsert.chatId = chatId;
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.InsertAsync(objToInsert);
+            }
+        }
+
+        public async void UnsubscribeFromUpdateLog(string chatId)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.DeleteAsync(new UpdateLogSubscriber { chatId = chatId });
+            }
+        }
     }
 }

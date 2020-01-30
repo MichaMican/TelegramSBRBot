@@ -9,5 +9,7 @@ namespace TelegramFunFactBot.Classes.HelperClasses
     {
         public string chat_id;
         public string text;
+        public string parse_mode;
+
     }
 }
