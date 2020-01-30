@@ -1,0 +1,7 @@
+New commands:
+	/unsubupdates - This unsubscribes you from update log notifies
+	/start - subscribes you to the update log notifies
+
+New features:
+	- If you start a private communication with the bot you automatically get subscribed to update log notifies
+	- Bot now sends an updateLog when a new version of the bot was published

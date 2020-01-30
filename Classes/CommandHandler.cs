@@ -112,15 +112,23 @@ namespace TelegramFunFactBot.Classes
                 {
                     switch (command[0])
                     {
+                        case "/start":
+                            SubscribeToUpdates(chatId);
+                            _telegramAPICommunicator.SendMessage(chatId, "Heyho :)");
+                            break;
+                        case "/unsubupdates":
+                            UnsubscribeToUpdates(chatId);
+                            _telegramAPICommunicator.SendMessage(chatId, "Successfully unsubscribed from update log notification");
+                            break;
                         case "/subfunfacts":
                         case "/subfunfacts@sbrcs_bot":
                             SubscribeToFunFacts(command, chatId);
-                            _telegramAPICommunicator.SendMessage("Successfully subscribed to FunFacts by Joseph Paul", chatId);
+                            _telegramAPICommunicator.SendMessage(chatId, "Successfully subscribed to FunFacts by Joseph Paul");
                             break;
                         case "/unsubfunfacts":
                         case "/unsubfunfacts@sbrcs_bot":
                             UnsubscribeFromFunFacts(chatId);
-                            _telegramAPICommunicator.SendMessage("Successfully unsubscribed from FunFacts", chatId);
+                            _telegramAPICommunicator.SendMessage(chatId, "Successfully unsubscribed from FunFacts");
                             break;
                         default:
                             /* Fall through */
@@ -129,9 +137,19 @@ namespace TelegramFunFactBot.Classes
                 }
                 catch
                 {
-                    _telegramAPICommunicator.SendMessage("There was an error while processing your command :(", chatId);
+                    _telegramAPICommunicator.SendMessage(chatId, "There was an error while processing your command :(");
                 }
             }
+        }
+
+        private void SubscribeToUpdates(string chatId)
+        {
+            _dapperDB.SubscribeToUpdateLog(chatId);
+        }
+
+        private void UnsubscribeToUpdates(string chatId)
+        {
+            _dapperDB.UnsubscribeFromFunFacts(chatId);
         }
 
         private void UnsubscribeFromFunFacts(string chatId)

@@ -32,6 +32,7 @@ namespace TelegramFunFactBot
             services.AddSingleton<ITelegramAPICommunicator, TelegramAPICommunicator>();
             services.AddSingleton<IInit, Init>();
             services.AddSingleton<IHttpHandler, HttpHandler>();
+            services.AddSingleton<IUpdateNotifyHandler, UpdateNotifyHandler>();
 
             services.AddControllersWithViews().AddNewtonsoftJson();
 
@@ -43,7 +44,7 @@ namespace TelegramFunFactBot
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IUpdateNotifyHandler updateNotifyHandler)
         {
             if (env.IsDevelopment())
             {
@@ -78,6 +79,12 @@ namespace TelegramFunFactBot
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+
+            if (!env.IsDevelopment())
+            {
+                updateNotifyHandler.checkForUpdates();
+            }
+
         }
     }
 
