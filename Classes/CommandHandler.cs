@@ -10,10 +10,24 @@ namespace TelegramFunFactBot.Classes
     {
         private readonly ITelegramAPICommunicator _telegramAPICommunicator;
         private readonly IDapperDB _dapperDB;
-        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB)
+        private readonly IInit _init;
+        private readonly System.Threading.Timer _checkSubServicesThread;
+        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init)
         {
             _telegramAPICommunicator = telegramAPICommunicator;
             _dapperDB = dapperDB;
+            _init = init;
+            _checkSubServicesThread = new System.Threading.Timer((e) =>
+            {
+                try
+                {
+                    _init.CheckForSubscribedServices();
+                }
+                catch
+                {
+                    /* Fall through */
+                }
+            }, null, 1000, 60000);
         }
 
         public class Entity

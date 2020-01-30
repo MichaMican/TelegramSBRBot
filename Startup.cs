@@ -43,7 +43,7 @@ namespace TelegramFunFactBot
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IInit init, IHttpHandler _httpHandler)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -78,18 +78,6 @@ namespace TelegramFunFactBot
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
-
-            var timer = new System.Threading.Timer((e) =>
-            {
-                try
-                {
-                    init.CheckForSubscribedServices();
-                }
-                catch
-                {
-                    /* Fall through */
-                }
-            }, null, 1000, 60000);
         }
     }
 
