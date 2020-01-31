@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace TelegramFunFactBot.Classes.HelperClasses
 {
-    public class TelegramAPIMessage
+    public class TelegramAPIImageMessage
     {
         public string chat_id;
-        public string text;
+        public string photo;
+        public string caption;
         public string parse_mode;
     }
 }

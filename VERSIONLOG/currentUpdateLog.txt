@@ -1,6 +1,8 @@
 New commands:
-	<b>/ping</b> - check if Bot is still online
-	<b>/idea [Title] [Description]</b> - Submits a bot feature idea to the bot developer (Please use this feature only in private conversation with the bot!, it will get ignored otherwise)
+	<b>/submemes [UTC Time]</b> subscribes you to the memes service
+	<b>/unsubmemes</b> unsubscribes you from the memes service
 
 Further changes:
-	- Removed frontend, beacause it wasn't really used and it offered a sercurity loophole to the public
+	- /ping now only works in private conversations with the bot
+	- /idea now also logs First and last name (if set), because a username is a optional variable in telegram
+	- Introducing the "Memes Service". This service provides you, when subscribed to, every 24h a top meme straight from reddit.

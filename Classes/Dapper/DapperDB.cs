@@ -164,5 +164,45 @@ namespace TelegramFunFactBot.Classes.Dapper
                 await connection.DeleteAsync(new UpdateLogSubscriber { chatId = chatId });
             }
         }
+
+        public async void SubscribeToMemes(string chatId, DateTime nextUpdateOn)
+        {
+            var objToInsert = new MemeSubscriber();
+            objToInsert.chatId = chatId;
+            objToInsert.nextUpdateOn = nextUpdateOn;
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.InsertAsync(objToInsert);
+            }
+        }
+
+        public async void UnsubscribeFromMemes(string chatId)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.DeleteAsync(new MemeSubscriber { chatId = chatId });
+            }
+        }
+
+        public async void UpdateMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                await connection.UpdateAsync(new MemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+            }
+        }
+
+        public async Task<List<MemeSubscriber>> GetMemesSubscribers()
+        {
+            var listToReturn = new List<MemeSubscriber>();
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                listToReturn = (await connection.GetAllAsync<MemeSubscriber>()).ToList();
+            }
+
+            return listToReturn;
+        }
     }
 }

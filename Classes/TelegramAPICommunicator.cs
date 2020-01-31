@@ -20,6 +20,24 @@ namespace TelegramFunFactBot.Classes
             _settings = settings.Value;
         }
 
+        public void SendImage(string chatId, string imageURL, string caption = "", string parse_mode = "")
+        {
+            var answer = new TelegramAPIImageMessage();
+            answer.chat_id = chatId;
+            answer.photo = imageURL;
+            answer.caption = caption;
+            answer.parse_mode = parse_mode;
+
+
+            var url = "https://api.telegram.org/bot" + _settings.botToken + "/sendPhoto";
+
+            var json = JsonConvert.SerializeObject(answer);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var res = _client.PostAsync(url, content).Result;
+        }
+
         public void SendMessage(string chatId, string message, string parse_mode = "html")
         {
             var answer = new TelegramAPIMessage();
