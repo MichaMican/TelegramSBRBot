@@ -12,5 +12,6 @@ namespace TelegramFunFactBot
         public string dbUser { get; set; }
         public string dbPwd { get; set; }
         public string dbInitCat { get; set; }
+        public string ideaChatId { get; set; }
     }
 }

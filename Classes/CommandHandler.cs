@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,9 +12,11 @@ namespace TelegramFunFactBot.Classes
         private readonly ITelegramAPICommunicator _telegramAPICommunicator;
         private readonly IDapperDB _dapperDB;
         private readonly IInit _init;
+        private readonly Settings _settings;
         private readonly System.Threading.Timer _checkSubServicesThread;
-        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init)
+        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init, IOptions<Settings> settings)
         {
+            _settings = settings.Value;
             _telegramAPICommunicator = telegramAPICommunicator;
             _dapperDB = dapperDB;
             _init = init;
@@ -105,6 +108,9 @@ namespace TelegramFunFactBot.Classes
             }
 
             string chatId = body.message.chat.id;
+            string chatType = body.message.chat.type;
+            string username = body.message.from.username;
+
 
             foreach (string[] command in commands)
             {
@@ -117,9 +123,11 @@ namespace TelegramFunFactBot.Classes
                             _telegramAPICommunicator.SendMessage(chatId, "Heyho :)");
                             break;
                         case "/ping":
+                        case "/ping@sbrcs_bot":
                             _telegramAPICommunicator.SendMessage(chatId, "Pong");
                             break;
                         case "/unsubupdates":
+                        case "/unsubupdates@sbrcs_bot":
                             UnsubscribeToUpdates(chatId);
                             _telegramAPICommunicator.SendMessage(chatId, "Successfully unsubscribed from update log notification");
                             break;
@@ -132,6 +140,18 @@ namespace TelegramFunFactBot.Classes
                         case "/unsubfunfacts@sbrcs_bot":
                             UnsubscribeFromFunFacts(chatId);
                             _telegramAPICommunicator.SendMessage(chatId, "Successfully unsubscribed from FunFacts");
+                            break;
+                        case "/idea":
+                        case "/idea@sbrcs_bot":
+                            if(chatType == "private")
+                            {
+                                newIdea(command, chatId, username);
+                                //This is already done in newIdea function: _telegramAPICommunicator.SendMessage(chatId, "Your idea was submitted");
+                            }
+                            else
+                            {
+                                _telegramAPICommunicator.SendMessage(chatId, "This command is only available in private conversations with the bot");
+                            }
                             break;
                         default:
                             /* Fall through */
@@ -188,6 +208,30 @@ namespace TelegramFunFactBot.Classes
             }
 
             _dapperDB.SubscribeToFunFacts(chatId, timeToUpdate);
+        }
+
+        private void newIdea(string[] command, string chatId, string userName)
+        {
+            try
+            {
+                string title = command[1];
+                string description = "";
+
+                for (int i = 2; i < command.Length; i++)
+                {
+                    description += command[i] + " ";
+                }
+
+                string ideaMessage = "Idea: <b>" + title + "</b>\nDescription: " + description + "\n------------------------------------------------------------\nThis idea was submitted by @" + userName;
+
+                _telegramAPICommunicator.SendMessage(_settings.ideaChatId, ideaMessage);
+                _telegramAPICommunicator.SendMessage(chatId, "Your idea was submitted");
+            }
+            catch
+            {
+                _telegramAPICommunicator.SendMessage(chatId, "There was an error while processing your request. Make sure you use the correct syntax: /idea [Title] [Description]");
+            }
+            
         }
 
     }
