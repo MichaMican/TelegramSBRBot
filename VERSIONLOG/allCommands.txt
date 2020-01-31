@@ -1,0 +1,10 @@
+<i><b>/ping </b>| check if Bot is still online </i>
+<i><b>/idea [Idea Title] [Idea Description] </b>| Submits a bot feature idea to the bot developer </i>
+<b>/subfunfacts (Time in HH:mm UTC format) </b>| Bot will send you a FunFact at a specified Time. If no Time is provided the current time will be used
+<b>/unsubfunfacts </b>| unsubscribes you from fun facts
+<b>/submemes (Time in HH:mm UTC format) </b>| Bot will send you a Meme at a specified Time. If no Time is provided the current time will be used
+<b>/unsubmemes </b>| unsubscribes you from Memes
+
+<i>cursive commands are only available in private conversation with the bot</i>
+[] = Mandatory parameters
+() = optional parameters

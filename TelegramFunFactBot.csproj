@@ -31,11 +31,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="VERSIONLOG\allCommands.txt" />
     <None Remove="VERSIONLOG\currentUpdateLog.txt" />
     <None Remove="VERSIONLOG\currentVersion.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="VERSIONLOG\allCommands.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="VERSIONLOG\currentUpdateLog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

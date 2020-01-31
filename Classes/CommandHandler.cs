@@ -126,6 +126,10 @@ namespace TelegramFunFactBot.Classes
                             SubscribeToUpdates(chatId);
                             _telegram.SendMessage(chatId, "Heyho :)");
                             break;
+                        case "/help":
+                        case "/help@sbrcs_bot":
+                            SendHelp(chatId);
+                            break;
                         case "/ping":
                         case "/ping@sbrcs_bot":
                             if (chatType == "private")
@@ -180,6 +184,13 @@ namespace TelegramFunFactBot.Classes
                     _telegram.SendMessage(chatId, "There was an error while processing your command :(");
                 }
             }
+        }
+
+        private void SendHelp(string chatId)
+        {
+            string allCommands = System.IO.File.ReadAllText(@"./VERSIONLOG/allCommands.txt");
+
+            _telegram.SendMessage(chatId, allCommands);
         }
 
         private void SubscribeToUpdates(string chatId)

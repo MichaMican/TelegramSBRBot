@@ -1,0 +1,32 @@
+v0.1.0
+New commands:
+ /subfunfacts - This subscribes you to funfacts
+ /unsubfunfacts - unsubscribes you from funfacts
+New features:
+ - Introducing "Fun Fact Service": Sends you a funfact every 24h when subscribed to
+------------------------------------------------------------------------------------------------
+v0.1.1 
+New commands:
+ /unsubupdates - This unsubscribes you from update log notifies
+ /start - subscribes you to the update log notifies
+New features:
+ - If you start a private communication with the bot you automatically get subscribed to update log notifies
+ - Bot now sends an updateLog when a new version of the bot was published
+ - fix FunFact updates (the greedy garbage collector doesn't purge the update thread anymore)
+------------------------------------------------------------------------------------------------
+v0.1.2 
+New commands:
+ /ping - check if Bot is still online
+ /idea [Title] [Description] - Submits a bot feature idea to the bot developer (Please use this feature only in private conversation with the bot!, it will get ignored otherwise)
+Further changes:
+ - Removed frontend, beacause it wasn't really used and it offered a sercurity loophole to the public
+-----------------------------------------------------------------------------------------------
+v0.1.3 
+New commands:
+ /submemes [UTC Time] subscribes you to the meme service
+ /unsubmemes unsubscribes you from the meme service
+Further changes:
+ - /ping now only works in private conversations with the bot
+ - /idea now also logs First and last name (if set), because a username is a optional variable in telegram
+ - Introducing the "Meme Service". This service provides you, when subscribed to, every 24h a top meme straight from reddit.
+-----------------------------------------------------------------------------------------------
