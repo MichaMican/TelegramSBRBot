@@ -116,6 +116,9 @@ namespace TelegramFunFactBot.Classes
                             SubscribeToUpdates(chatId);
                             _telegramAPICommunicator.SendMessage(chatId, "Heyho :)");
                             break;
+                        case "/ping":
+                            _telegramAPICommunicator.SendMessage(chatId, "Pong");
+                            break;
                         case "/unsubupdates":
                             UnsubscribeToUpdates(chatId);
                             _telegramAPICommunicator.SendMessage(chatId, "Successfully unsubscribed from update log notification");
