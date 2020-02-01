@@ -31,7 +31,7 @@ namespace TelegramFunFactBot.Classes
                 }
                 catch
                 {
-                    /* Fall through */
+                    //Fall through 
                 }
             }, null, 1000, 60000);
         }
@@ -214,18 +214,22 @@ namespace TelegramFunFactBot.Classes
 
             try
             {
-                var time = command[1].Split(":");
-                if (time.Length == 2)
+                if (command.Length > 1) //this means after the command there is a property provided
                 {
-                    int hours = Int32.Parse(time[0]);
-                    int minutes = Int32.Parse(time[1]);
+                    var time = command[1].Split(":");
 
-                    if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                    if (time.Length == 2)
                     {
-                        timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
-                        if (timeToUpdate < DateTime.Now)
+                        int hours = Int32.Parse(time[0]);
+                        int minutes = Int32.Parse(time[1]);
+
+                        if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
                         {
-                            timeToUpdate = timeToUpdate.AddDays(1);
+                            timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                            if (timeToUpdate < DateTime.Now)
+                            {
+                                timeToUpdate = timeToUpdate.AddDays(1);
+                            }
                         }
                     }
                 }
@@ -237,7 +241,7 @@ namespace TelegramFunFactBot.Classes
 
             _dapperDB.SubscribeToFunFacts(chatId, timeToUpdate);
         }
-        
+
         private void UnsubscribeFromMemes(string chatId)
         {
             _dapperDB.UnsubscribeFromMemes(chatId);
@@ -249,18 +253,22 @@ namespace TelegramFunFactBot.Classes
 
             try
             {
-                var time = command[1].Split(":");
-                if (time.Length == 2)
+                if (command.Length > 1) //this means after the command there is a property provided
                 {
-                    int hours = Int32.Parse(time[0]);
-                    int minutes = Int32.Parse(time[1]);
+                    var time = command[1].Split(":");
 
-                    if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                    if (time.Length == 2)
                     {
-                        timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
-                        if (timeToUpdate < DateTime.Now)
+                        int hours = Int32.Parse(time[0]);
+                        int minutes = Int32.Parse(time[1]);
+
+                        if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
                         {
-                            timeToUpdate = timeToUpdate.AddDays(1);
+                            timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                            if (timeToUpdate < DateTime.Now)
+                            {
+                                timeToUpdate = timeToUpdate.AddDays(1);
+                            }
                         }
                     }
                 }

@@ -27,8 +27,25 @@ namespace TelegramFunFactBot.Controllers
         [HttpPost("new-message")]
         public ActionResult NewMessage([FromBody]dynamic body)
         {
-            _commandHandler.HandleCommand(body);
-            _dapperDB.WriteRequestLog(body.ToString());
+            try
+            {
+                _commandHandler.HandleCommand(body);
+                _dapperDB.WriteRequestLog(body.ToString());
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _dapperDB.WriteEventLog("TelegramControler", "Error", "There was an dangorous error in the Controller!" + e.Message);
+                }
+                catch
+                {
+                    /*Fall through*/
+                }
+                return Ok();
+            }
+
+
             return Ok();
         }
     }

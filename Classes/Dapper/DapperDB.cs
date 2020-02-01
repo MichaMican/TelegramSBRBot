@@ -27,47 +27,70 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public async void WriteEventLog(string source, string type, string message, string logGroup = null)
         {
-            var objToInsert = new EventLog();
-            objToInsert.source = source;
-            objToInsert.type = type;
-            objToInsert.logGroup = logGroup;
-            objToInsert.message = message;
-            objToInsert.timestamp = DateTime.UtcNow;
-
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.InsertAsync(objToInsert);
+                var objToInsert = new EventLog();
+                objToInsert.source = source;
+                objToInsert.type = type;
+                objToInsert.logGroup = logGroup;
+                objToInsert.message = message;
+                objToInsert.timestamp = DateTime.UtcNow;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
+
+
         public async void WriteRequestLog(string jsonString)
         {
-            var objToInsert = new RequestLog();
-            if(jsonString.Length < 2000)
+            try
             {
-                objToInsert.requestJson = jsonString;
-            } 
-            else
-            {
-                WriteEventLog("Dapper", "Error", "A Request Json was to long to be saved in DB");
-            }
-            objToInsert.timestamp = DateTime.UtcNow;
+                var objToInsert = new RequestLog();
+                if (jsonString.Length < 2000)
+                {
+                    objToInsert.requestJson = jsonString;
+                }
+                else
+                {
+                    WriteEventLog("Dapper", "Error", "A Request Json was to long to be saved in DB");
+                }
+                objToInsert.timestamp = DateTime.UtcNow;
 
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
             {
-                await connection.InsertAsync(objToInsert);
+                //Fall through
             }
         }
 
         public async void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn)
         {
-            var objToInsert = new FunFactSubscriber();
-            objToInsert.chatId = chatId;
-            objToInsert.nextUpdateOn = nextUpdateOn;
-
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.InsertAsync(objToInsert);
+                var objToInsert = new FunFactSubscriber();
+                objToInsert.chatId = chatId;
+                objToInsert.nextUpdateOn = nextUpdateOn;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
@@ -75,9 +98,16 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             var listToReturn = new List<FunFactSubscriber>();
 
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                listToReturn = (await connection.GetAllAsync<FunFactSubscriber>()).ToList();
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    listToReturn = (await connection.GetAllAsync<FunFactSubscriber>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
             }
 
             return listToReturn;
@@ -85,17 +115,31 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public async void UpdateFunFactNextUpdateOn(string chatId, DateTime nextUpdateOn)
         {
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.UpdateAsync(new FunFactSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.UpdateAsync(new FunFactSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
         public async void UnsubscribeFromFunFacts(string chatId)
         {
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.DeleteAsync(new FunFactSubscriber { chatId = chatId });
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.DeleteAsync(new FunFactSubscriber { chatId = chatId });
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
@@ -103,9 +147,16 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             var response = new List<CurrentVersion>();
 
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                response = (await connection.GetAllAsync<CurrentVersion>()).ToList();
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    response = (await connection.GetAllAsync<CurrentVersion>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
             }
 
             if (response.Count > 0)
@@ -122,15 +173,22 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public void UpdateVersion(string newVersion)
         {
-            var versionUpdate = new CurrentVersion();
-            versionUpdate.version = newVersion;
-
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                connection.DeleteAll<CurrentVersion>();
+                var versionUpdate = new CurrentVersion();
+                versionUpdate.version = newVersion;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    connection.DeleteAll<CurrentVersion>();
 
 
-                connection.Insert(versionUpdate);
+                    connection.Insert(versionUpdate);
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
@@ -138,9 +196,16 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             var returnList = new List<UpdateLogSubscriber>();
 
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                returnList = (await connection.GetAllAsync<UpdateLogSubscriber>()).ToList();
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    returnList = (await connection.GetAllAsync<UpdateLogSubscriber>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
             }
 
             return returnList;
@@ -148,48 +213,83 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public async void SubscribeToUpdateLog(string chatId)
         {
-            var objToInsert = new UpdateLogSubscriber();
-            objToInsert.chatId = chatId;
-
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.InsertAsync(objToInsert);
+                var objToInsert = new UpdateLogSubscriber();
+                objToInsert.chatId = chatId;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
         public async void UnsubscribeFromUpdateLog(string chatId)
         {
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.DeleteAsync(new UpdateLogSubscriber { chatId = chatId });
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.DeleteAsync(new UpdateLogSubscriber { chatId = chatId });
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
         public async void SubscribeToMemes(string chatId, DateTime nextUpdateOn)
         {
-            var objToInsert = new MemeSubscriber();
-            objToInsert.chatId = chatId;
-            objToInsert.nextUpdateOn = nextUpdateOn;
-
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.InsertAsync(objToInsert);
+                var objToInsert = new MemeSubscriber();
+                objToInsert.chatId = chatId;
+                objToInsert.nextUpdateOn = nextUpdateOn;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
         public async void UnsubscribeFromMemes(string chatId)
         {
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.DeleteAsync(new MemeSubscriber { chatId = chatId });
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.DeleteAsync(new MemeSubscriber { chatId = chatId });
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
         public async void UpdateMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
         {
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                await connection.UpdateAsync(new MemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.UpdateAsync(new MemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                }
+            }
+            catch
+            {
+                //Fall through
             }
         }
 
@@ -197,9 +297,16 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             var listToReturn = new List<MemeSubscriber>();
 
-            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            try
             {
-                listToReturn = (await connection.GetAllAsync<MemeSubscriber>()).ToList();
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    listToReturn = (await connection.GetAllAsync<MemeSubscriber>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
             }
 
             return listToReturn;
