@@ -2,6 +2,8 @@ New commands:
  <b>/help</b> returns all available commands
  <b>/subalmanmemes</b> subscribe you to german memes
  <b>/unsubalmanmemes</b> unsubscribes you from german memes
+ <b>/iguana</b> sends you the current top post of r/iguanas
 Further changes:
  - Introducing "Alman Memes Service": Sends you a german meme (from ich_iel) every 24h when subscribed to
+ - Introducing "sexy iguanas": Make your day a bit brighter by looking at a sexy iguana pick provided by r/iguanas
  - Change Internal structure to improve performance and code readability

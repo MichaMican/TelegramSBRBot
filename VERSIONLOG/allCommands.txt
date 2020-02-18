@@ -5,6 +5,9 @@
 <b>/unsubfunfacts </b>| unsubscribes you from fun facts
 <b>/submemes (Time in HH:mm UTC format) </b>| Bot will send you a Meme at a specified Time. If no Time is provided the current time will be used
 <b>/unsubmemes </b>| unsubscribes you from Memes
+<b>/subalmanmemes</b>| subscribe you to german memes
+<b>/unsubalmanmemes</b>| unsubscribes you from german memes
+<b>/iguana</b> sends you the current top post of r/iguanas
 
 <i>cursive commands are only available in private conversation with the bot</i>
 [] = mandatory parameters

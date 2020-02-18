@@ -14,15 +14,17 @@ namespace TelegramFunFactBot.Classes
         private readonly IDapperDB _dapperDB;
         private readonly IInit _init;
         private readonly IHttpHandler _httpHandler;
+        private readonly IRedditPostHandler _redditPostHandler;
         private readonly Settings _settings;
         private readonly System.Threading.Timer _checkSubServicesThread;
-        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init, IOptions<Settings> settings, IHttpHandler httpHandler)
+        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init, IOptions<Settings> settings, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
         {
             _httpHandler = httpHandler;
             _settings = settings.Value;
             _telegram = telegramAPICommunicator;
             _dapperDB = dapperDB;
             _init = init;
+            _redditPostHandler = redditPostHandler;
             _checkSubServicesThread = new System.Threading.Timer((e) =>
             {
                 try
@@ -171,6 +173,10 @@ namespace TelegramFunFactBot.Classes
                         case "/unsubalmanmemes@sbrcs_bot":
                             UnsubscribeFromDeutscheMemes(chatId);
                             _telegram.SendMessage(chatId, "Successfully unsubscribed from Ich_Iel Memes");
+                            break;
+                        case "/iguana":
+                        case "/iguana@sbrcs_bot":
+                            SendLizardPic(chatId);
                             break;
                         case "/idea":
                         case "/idea@sbrcs_bot":
@@ -351,6 +357,21 @@ namespace TelegramFunFactBot.Classes
             {
                 _telegram.SendMessage(chatId, "There was an error while processing your request. Make sure you use the correct syntax: /idea [Title] [Description]");
             }
+        }
+
+        private async void SendLizardPic(string chatId)
+        {
+            var post = await (_redditPostHandler.GetRedditTopPostWithImageData("iguanas", 5));
+
+            if(post != null)
+            {
+                _telegram.SendImage(chatId, post.imageUrl, "<b>" + post.title + "</b> - Source: https://www.reddit.com" + post.permalink, "html");
+            }
+            else
+            {
+                _telegram.SendMessage(chatId, "Sorry but i can't find a sexy leguan pic for you :(");
+            }
+
 
         }
 

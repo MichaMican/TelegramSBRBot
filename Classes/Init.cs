@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot.Classes
@@ -12,12 +13,14 @@ namespace TelegramFunFactBot.Classes
         private readonly ITelegramAPICommunicator _telegram;
         private readonly IDapperDB _dapperDB;
         private readonly IHttpHandler _httpHandler;
+        private readonly IRedditPostHandler _redditPostHandler;
 
-        public Init(ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler)
+        public Init(ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
         {
             _telegram = telegram;
             _dapperDB = dapperDB;
             _httpHandler = httpHandler;
+            _redditPostHandler = redditPostHandler;
         }
 
         public void CheckForSubscribedServices()
@@ -27,11 +30,9 @@ namespace TelegramFunFactBot.Classes
             HandleDeutscheMemeSubscriber();
         }
 
-
         private async void HandleMemeSubscriber()
         {
-
-            dynamic data = null;
+            RedditPostData data = null;
             int maxNumberOfPosts = 5;
 
             try
@@ -43,33 +44,14 @@ namespace TelegramFunFactBot.Classes
                     {
                         _dapperDB.UpdateMemesNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
 
-                        if(data == null)
+                        if (data == null)
                         {
-                            var response = await _httpHandler.Get("https://www.reddit.com/r/memes/top.json?limit=" + maxNumberOfPosts + "&raw_json=1");
-                            string responseBody = await response.Content.ReadAsStringAsync();
-
-                            data = JsonConvert.DeserializeObject(responseBody);
+                            data = await _redditPostHandler.GetRedditTopPostWithImageData("memes", maxNumberOfPosts);
                         }
 
-                        string imageUrl = "";
-                        string title = "";
-                        string permalink = "";
-                        int i = 0;
-                        
-                        while(imageUrl == "" && i < maxNumberOfPosts)
+                        if (data.imageUrl != "")
                         {
-                            
-
-                            imageUrl = data.data.children[i].data.preview.images[0].source.url;
-                            title = data.data.children[i].data.title;
-                            permalink = data.data.children[i].data.permalink;
-
-                            i++;
-                        }
-
-                        if (imageUrl != "")
-                        {
-                            _telegram.SendImage(subscriber.chatId, imageUrl,"<b>" + title + "</b> - Source: https://www.reddit.com" + permalink, "html");
+                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
                         }
                         else
                         {
@@ -88,7 +70,7 @@ namespace TelegramFunFactBot.Classes
         private async void HandleDeutscheMemeSubscriber()
         {
 
-            dynamic data = null;
+            RedditPostData data = null;
             int maxNumberOfPosts = 5;
 
             try
@@ -102,31 +84,12 @@ namespace TelegramFunFactBot.Classes
 
                         if (data == null)
                         {
-                            var response = await _httpHandler.Get("https://www.reddit.com/r/ich_iel/top.json?limit=" + maxNumberOfPosts + "&raw_json=1");
-                            string responseBody = await response.Content.ReadAsStringAsync();
-
-                            data = JsonConvert.DeserializeObject(responseBody);
+                            data = await _redditPostHandler.GetRedditTopPostWithImageData("ich_iel", maxNumberOfPosts);
                         }
 
-                        string imageUrl = "";
-                        string title = "";
-                        string permalink = "";
-                        int i = 0;
-
-                        while (imageUrl == "" && i < maxNumberOfPosts)
+                        if (data.imageUrl != "")
                         {
-
-
-                            imageUrl = data.data.children[i].data.preview.images[0].source.url;
-                            title = data.data.children[i].data.title;
-                            permalink = data.data.children[i].data.permalink;
-
-                            i++;
-                        }
-
-                        if (imageUrl != "")
-                        {
-                            _telegram.SendImage(subscriber.chatId, imageUrl, "<b>" + title + "</b> - Source: https://www.reddit.com" + permalink, "html");
+                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
                         }
                         else
                         {
@@ -157,9 +120,9 @@ namespace TelegramFunFactBot.Classes
             try
             {
                 var subscribers = await _dapperDB.GetFunFactSubscribers();
-                foreach(var subscriber in subscribers)
+                foreach (var subscriber in subscribers)
                 {
-                    if(DateTime.Now > subscriber.nextUpdateOn)
+                    if (DateTime.Now > subscriber.nextUpdateOn)
                     {
                         _dapperDB.UpdateFunFactNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
 
@@ -172,7 +135,7 @@ namespace TelegramFunFactBot.Classes
                         _telegram.SendMessage(subscriber.chatId, message);
                     }
                 }
-            } 
+            }
             catch (Exception e)
             {
                 _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "HandleFunFactSubscriber");
