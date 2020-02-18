@@ -30,3 +30,14 @@ Further changes:
  - /idea now also logs First and last name (if set), because a username is a optional variable in telegram
  - Introducing the "Meme Service". This service provides you, when subscribed to, every 24h a top meme straight from reddit.
 -----------------------------------------------------------------------------------------------
+v0.1.4
+New commands:
+ /help returns all available commands
+ /subalmanmemes subscribe you to german memes
+ /unsubalmanmemes unsubscribes you from german memes
+ /iguana sends you the current top post of r/iguanas
+Further changes:
+ - Introducing "Alman Memes Service": Sends you a german meme (from ich_iel) every 24h when subscribed to
+ - Introducing "sexy iguanas": Make your day a bit brighter by looking at a sexy iguana pick provided by r/iguanas
+ - Change Internal structure to improve performance and code readability
+-----------------------------------------------------------------------------------------------
