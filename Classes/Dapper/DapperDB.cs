@@ -46,9 +46,6 @@ namespace TelegramFunFactBot.Classes.Dapper
                 //Fall through
             }
         }
-
-
-
         public async void WriteRequestLog(string jsonString)
         {
             try
@@ -75,73 +72,6 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn)
-        {
-            try
-            {
-                var objToInsert = new FunFactSubscriber();
-                objToInsert.chatId = chatId;
-                objToInsert.nextUpdateOn = nextUpdateOn;
-
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.InsertAsync(objToInsert);
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-        }
-
-        public async Task<List<FunFactSubscriber>> GetFunFactSubscribers()
-        {
-            var listToReturn = new List<FunFactSubscriber>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    listToReturn = (await connection.GetAllAsync<FunFactSubscriber>()).ToList();
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-
-            return listToReturn;
-        }
-
-        public async void UpdateFunFactNextUpdateOn(string chatId, DateTime nextUpdateOn)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.UpdateAsync(new FunFactSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-        }
-
-        public async void UnsubscribeFromFunFacts(string chatId)
-        {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.DeleteAsync(new FunFactSubscriber { chatId = chatId });
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-        }
 
         public async Task<string> GetCurrentVersion()
         {
@@ -192,25 +122,6 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async Task<List<UpdateLogSubscriber>> GetAllUpdateSubscriber()
-        {
-            var returnList = new List<UpdateLogSubscriber>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    returnList = (await connection.GetAllAsync<UpdateLogSubscriber>()).ToList();
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-
-            return returnList;
-        }
-
         public async void SubscribeToUpdateLog(string chatId)
         {
             try
@@ -244,11 +155,30 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async void SubscribeToMemes(string chatId, DateTime nextUpdateOn)
+        public async Task<List<UpdateLogSubscriber>> GetAllUpdateSubscriber()
+        {
+            var returnList = new List<UpdateLogSubscriber>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    returnList = (await connection.GetAllAsync<UpdateLogSubscriber>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+
+            return returnList;
+        }
+
+        private async Task Subscribe<T>(string chatId, DateTime nextUpdateOn) where T : Subscribeable, new()
         {
             try
             {
-                var objToInsert = new MemeSubscriber();
+                T objToInsert = new T();
                 objToInsert.chatId = chatId;
                 objToInsert.nextUpdateOn = nextUpdateOn;
 
@@ -263,13 +193,13 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async void UnsubscribeFromMemes(string chatId)
+        public async Task Unsubscribe<T>(string chatId) where T : Subscribeable, new()
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
-                    await connection.DeleteAsync(new MemeSubscriber { chatId = chatId });
+                    await connection.DeleteAsync(new T { chatId = chatId });
                 }
             }
             catch
@@ -278,13 +208,14 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async void UpdateMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
+
+        public async Task UpdateNextUpdateOn<T>(string chatId, DateTime nextUpdateOn) where T : Subscribeable, new()
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
-                    await connection.UpdateAsync(new MemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                    await connection.UpdateAsync(new T { chatId = chatId, nextUpdateOn = nextUpdateOn });
                 }
             }
             catch
@@ -293,15 +224,15 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public async Task<List<MemeSubscriber>> GetMemesSubscribers()
+        public async Task<List<T>> GetSubscribers<T>() where T : Subscribeable, new()
         {
-            var listToReturn = new List<MemeSubscriber>();
+            var listToReturn = new List<T>();
 
             try
             {
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
-                    listToReturn = (await connection.GetAllAsync<MemeSubscriber>()).ToList();
+                    listToReturn = (await connection.GetAllAsync<T>()).ToList();
                 }
             }
             catch
@@ -310,75 +241,60 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
 
             return listToReturn;
+        }
+
+
+        public async void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn)
+        {
+            await Subscribe<FunFactSubscriber>(chatId, nextUpdateOn);
+        }
+        public async void UnsubscribeFromFunFacts(string chatId)
+        {
+            await Unsubscribe<FunFactSubscriber>(chatId);
+        }
+        public async void UpdateFunFactNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            await UpdateNextUpdateOn<FunFactSubscriber>(chatId, nextUpdateOn);
+        }
+        public async Task<List<FunFactSubscriber>> GetFunFactSubscribers()
+        {
+            return await GetSubscribers<FunFactSubscriber>();
+        }
+
+
+        public async void SubscribeToMemes(string chatId, DateTime nextUpdateOn)
+        {
+            await Subscribe<MemeSubscriber>(chatId, nextUpdateOn);
+        }
+        public async void UnsubscribeFromMemes(string chatId)
+        {
+            await Unsubscribe<MemeSubscriber>(chatId);
+        }
+        public async void UpdateMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            await UpdateNextUpdateOn<MemeSubscriber>(chatId, nextUpdateOn);
+        }
+        public async Task<List<MemeSubscriber>> GetMemesSubscribers()
+        {
+            return await GetSubscribers<MemeSubscriber>();
         }
 
 
         public async void SubscribeToDeutscheMemes(string chatId, DateTime nextUpdateOn)
         {
-            try
-            {
-                var objToInsert = new DeutscheMemeSubscriber();
-                objToInsert.chatId = chatId;
-                objToInsert.nextUpdateOn = nextUpdateOn;
-
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.InsertAsync(objToInsert);
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
+            await Subscribe<DeutscheMemeSubscriber>(chatId, nextUpdateOn);
         }
-
         public async void UnsubscribeFromDeutscheMemes(string chatId)
         {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.DeleteAsync(new DeutscheMemeSubscriber { chatId = chatId });
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
+            await Unsubscribe<DeutscheMemeSubscriber>(chatId);
         }
-
         public async void UpdateDeutscheMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
         {
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    await connection.UpdateAsync(new DeutscheMemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
+            await UpdateNextUpdateOn<DeutscheMemeSubscriber>(chatId, nextUpdateOn);
         }
-
         public async Task<List<DeutscheMemeSubscriber>> GetDeutscheMemesSubscribers()
         {
-            var listToReturn = new List<DeutscheMemeSubscriber>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
-                {
-                    listToReturn = (await connection.GetAllAsync<DeutscheMemeSubscriber>()).ToList();
-                }
-            }
-            catch
-            {
-                //Fall through
-            }
-
-            return listToReturn;
+            return await GetSubscribers<DeutscheMemeSubscriber>();
         }
     }
 }

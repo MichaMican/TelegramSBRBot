@@ -167,8 +167,8 @@ namespace TelegramFunFactBot.Classes
                             SubscribeToDeutscheMemes(command, chatId);
                             _telegram.SendMessage(chatId, "Successfully subscribed to Ich_Iel Memes");
                             break;
-                        case "/unsubalmanememes":
-                        case "/unsubalmanememes@sbrcs_bot":
+                        case "/unsubalmanmemes":
+                        case "/unsubalmanmemes@sbrcs_bot":
                             UnsubscribeFromDeutscheMemes(chatId);
                             _telegram.SendMessage(chatId, "Successfully unsubscribed from Ich_Iel Memes");
                             break;

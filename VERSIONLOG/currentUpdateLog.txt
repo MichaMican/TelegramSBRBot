@@ -4,3 +4,4 @@ New commands:
  <b>/unsubalmanmemes</b> unsubscribes you from german memes
 Further changes:
  - Introducing "Alman Memes Service": Sends you a german meme (from ich_iel) every 24h when subscribed to
+ - Change Internal structure to improve performance and code readability

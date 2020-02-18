@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace TelegramFunFactBot.Classes.Dapper.Tables
 {
     [Table("MemeSubscriber")]
-    public class MemeSubscriber
+    public class MemeSubscriber : Subscribeable
     {
         [ExplicitKey]
-        public string chatId { get; set; }
-        public DateTime nextUpdateOn { get; set; }
+        public override string chatId { get; set; }
+        public override DateTime nextUpdateOn { get; set; }
 
     }
 }
