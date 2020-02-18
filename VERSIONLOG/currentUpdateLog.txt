@@ -1,3 +1,6 @@
 New commands:
-	<b>/help</b> returns all available commands
+ <b>/help</b> returns all available commands
+ <b>/subalmanmemes</b> subscribe you to german memes
+ <b>/unsubalmanmemes</b> unsubscribes you from german memes
 Further changes:
+ - Introducing "Alman Memes Service": Sends you a german meme (from ich_iel) every 24h when subscribed to

@@ -311,5 +311,74 @@ namespace TelegramFunFactBot.Classes.Dapper
 
             return listToReturn;
         }
+
+
+        public async void SubscribeToDeutscheMemes(string chatId, DateTime nextUpdateOn)
+        {
+            try
+            {
+                var objToInsert = new DeutscheMemeSubscriber();
+                objToInsert.chatId = chatId;
+                objToInsert.nextUpdateOn = nextUpdateOn;
+
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(objToInsert);
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
+
+        public async void UnsubscribeFromDeutscheMemes(string chatId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.DeleteAsync(new DeutscheMemeSubscriber { chatId = chatId });
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
+
+        public async void UpdateDeutscheMemesNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.UpdateAsync(new DeutscheMemeSubscriber { chatId = chatId, nextUpdateOn = nextUpdateOn });
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
+
+        public async Task<List<DeutscheMemeSubscriber>> GetDeutscheMemesSubscribers()
+        {
+            var listToReturn = new List<DeutscheMemeSubscriber>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    listToReturn = (await connection.GetAllAsync<DeutscheMemeSubscriber>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+
+            return listToReturn;
+        }
     }
 }

@@ -162,6 +162,16 @@ namespace TelegramFunFactBot.Classes
                             UnsubscribeFromMemes(chatId);
                             _telegram.SendMessage(chatId, "Successfully unsubscribed from Memes");
                             break;
+                        case "/subalmanmemes":
+                        case "/subalmanememes@sbrcs_bot":
+                            SubscribeToDeutscheMemes(command, chatId);
+                            _telegram.SendMessage(chatId, "Successfully subscribed to Ich_Iel Memes");
+                            break;
+                        case "/unsubalmanememes":
+                        case "/unsubalmanememes@sbrcs_bot":
+                            UnsubscribeFromDeutscheMemes(chatId);
+                            _telegram.SendMessage(chatId, "Successfully unsubscribed from Ich_Iel Memes");
+                            break;
                         case "/idea":
                         case "/idea@sbrcs_bot":
                             if (chatType == "private")
@@ -246,6 +256,11 @@ namespace TelegramFunFactBot.Classes
         {
             _dapperDB.UnsubscribeFromMemes(chatId);
         }
+        
+        private void UnsubscribeFromDeutscheMemes(string chatId)
+        {
+            _dapperDB.UnsubscribeFromDeutscheMemes(chatId);
+        }
 
         private void SubscribeToMemes(string[] command, string chatId)
         {
@@ -279,6 +294,40 @@ namespace TelegramFunFactBot.Classes
             }
 
             _dapperDB.SubscribeToMemes(chatId, timeToUpdate);
+        }
+        
+        private void SubscribeToDeutscheMemes(string[] command, string chatId)
+        {
+            DateTime timeToUpdate = DateTime.Now;
+
+            try
+            {
+                if (command.Length > 1) //this means after the command there is a property provided
+                {
+                    var time = command[1].Split(":");
+
+                    if (time.Length == 2)
+                    {
+                        int hours = Int32.Parse(time[0]);
+                        int minutes = Int32.Parse(time[1]);
+
+                        if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                        {
+                            timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                            if (timeToUpdate < DateTime.Now)
+                            {
+                                timeToUpdate = timeToUpdate.AddDays(1);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                /*Fall through*/
+            }
+
+            _dapperDB.SubscribeToDeutscheMemes(chatId, timeToUpdate);
         }
 
         private void newIdea(string[] command, string chatId, string userName, string displayName)
