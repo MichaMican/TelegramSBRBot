@@ -56,3 +56,74 @@ CREATE TABLE [dbo].[RequestLog](
 ) ON [PRIMARY]
 GO
 
+
+/****** Object:  Table [dbo].[MemeSubscriber]    Script Date: 18.02.2020 19:44:49 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[MemeSubscriber](
+	[chatId] [nvarchar](30) NOT NULL,
+	[nextUpdateOn] [datetime2](0) NOT NULL,
+ CONSTRAINT [PK_MemeSubscriber] PRIMARY KEY CLUSTERED 
+(
+	[chatId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[DeutscheMemeSubscriber]    Script Date: 18.02.2020 19:44:19 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DeutscheMemeSubscriber](
+	[chatId] [nvarchar](30) NOT NULL,
+	[nextUpdateOn] [datetime2](0) NOT NULL,
+ CONSTRAINT [PK_DeutscheMemeSubscriber] PRIMARY KEY CLUSTERED 
+(
+	[chatId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[UpdateLogSubscriber]    Script Date: 18.02.2020 19:45:16 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[UpdateLogSubscriber](
+	[chatId] [nvarchar](30) NOT NULL,
+ CONSTRAINT [PK_UpdateLogSubscriber] PRIMARY KEY CLUSTERED 
+(
+	[chatId] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CurrentVersion]    Script Date: 18.02.2020 19:45:39 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CurrentVersion](
+	[version] [nvarchar](10) NOT NULL,
+ CONSTRAINT [PK_ReleasedVersions] PRIMARY KEY CLUSTERED 
+(
+	[version] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
