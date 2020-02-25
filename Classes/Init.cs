@@ -25,9 +25,17 @@ namespace TelegramFunFactBot.Classes
 
         public void CheckForSubscribedServices()
         {
-            HandleFunFactSubscriber();
-            HandleMemeSubscriber();
-            HandleDeutscheMemeSubscriber();
+            try
+            {
+                HandleFunFactSubscriber();
+                HandleMemeSubscriber();
+                HandleDeutscheMemeSubscriber();
+            }
+            catch (Exception e)
+            {
+                _dapperDB.WriteEventLog("Init", "Error", "There was an error" + e.Message, "CheckForSubscribedServices");
+            }
+            
         }
 
         private async void HandleMemeSubscriber()
