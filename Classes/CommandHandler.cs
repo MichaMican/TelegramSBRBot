@@ -398,48 +398,56 @@ namespace TelegramFunFactBot.Classes
 
         private async void SetCountdown(string[] command, string chatId)
         {
-            if (command.Length >= 4)
+            try
             {
-                string[] date = command[1].Split(".");
-                string[] time = command[2].Split(":");
-                string title = "";
-
-                for (int i = 3; i < command.Length; i++)
+                if (command.Length >= 4)
                 {
-                    title += command[i] + " ";
-                }
+                    string[] date = command[1].Split(".");
+                    string[] time = command[2].Split(":");
+                    string title = "";
+
+                    for (int i = 3; i < command.Length; i++)
+                    {
+                        title += command[i] + " ";
+                    }
 
 
 
-                DateTime countdownEndTime = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]), int.Parse(time[0]), int.Parse(time[1]), 0);
+                    DateTime countdownEndTime = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]), int.Parse(time[0]), int.Parse(time[1]), 0);
 
-                if (countdownEndTime > DateTime.Now)
-                {
-                    TimeSpan timeSpan = countdownEndTime - DateTime.UtcNow;
-
-
-                    int days = ((int)Math.Floor(timeSpan.TotalDays));
-                    int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 60;
-                    int minutes = ((int)Math.Floor(timeSpan.TotalMinutes)) % 60;
+                    if (countdownEndTime > DateTime.Now)
+                    {
+                        TimeSpan timeSpan = countdownEndTime - DateTime.UtcNow;
 
 
-                    var message = "<b>" + title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;
+                        int days = ((int)Math.Floor(timeSpan.TotalDays));
+                        int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 60;
+                        int minutes = ((int)Math.Floor(timeSpan.TotalMinutes)) % 60;
 
-                    var messageRef = await _telegram.SendMessage(chatId, message);
 
-                    _dapperDB.SetCountdown(chatId, title, countdownEndTime, messageRef.message_id);
+                        var message = "<b>" + title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;
+
+                        var messageRef = await _telegram.SendMessage(chatId, message);
+
+                        _dapperDB.SetCountdown(chatId, title, countdownEndTime, messageRef.message_id);
+                    }
+                    else
+                    {
+                        await _telegram.SendMessage(chatId, "Please provide a DateTime which is in the future (Note: This bot uses UTC time as reference: Current UTC Time: " + DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm") + ")");
+                    }
+                    return;
                 }
                 else
                 {
-                    await _telegram.SendMessage(chatId, "Please provide a DateTime which is in the future (Note: This bot uses UTC time as reference: Current UTC Time: " + DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm") + ")");
+                    await _telegram.SendMessage(chatId, "Please provide date and time and a title as a property");
+                    return;
                 }
-                return;
             }
-            else
+            catch (Exception e)
             {
-                await _telegram.SendMessage(chatId, "Please provide date and time and a title as a property");
-                return;
+                _dapperDB.WriteEventLog("CommandHandler", "Error", e.Message, "SetCountdown");
             }
+
         }
 
         private async void StopCountdown(string chatId, int? messageId)

@@ -7,7 +7,7 @@ namespace TelegramFunFactBot.Models
 {
     public class Chat
     {
-        public int id { get; set; }
+        public string id { get; set; }
         public string type { get; set; }
 
     }
