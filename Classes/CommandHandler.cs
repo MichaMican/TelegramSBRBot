@@ -211,7 +211,7 @@ namespace TelegramFunFactBot.Classes
                             break;
                         case "/getutctime":
                         case "/getutctime@sbrcs_bot":
-                            await _telegram.SendMessage(chatId, DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"));
+                            await _telegram.SendMessage(chatId, DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm:ss"));
                             break;
                         default:
                             /* Fall through */
@@ -431,11 +431,9 @@ namespace TelegramFunFactBot.Classes
                 }
                 else
                 {
-                    await _telegram.SendMessage(chatId, "Please provide a DateTime which is in the future (Note: This bot uses UTC time as reference: Current UTC Time: " + DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm") + ")");
+                    await _telegram.SendMessage(chatId, "Please provide a DateTime which is in the future (Note: This bot uses UTC time as reference: Current UTC Time: " + DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm") + ")");
                 }
-
                 return;
-
             }
             else
             {
@@ -449,6 +447,8 @@ namespace TelegramFunFactBot.Classes
             if (messageId.HasValue)
             {
                 _dapperDB.StopCountdown(messageId.Value);
+                _telegram.UpdateMessage(chatId, messageId.Value, "<i>COUNTDOWN CANCLED</i>");
+                await _telegram.SendMessage(chatId, "Successfully cancled the countdown");
             }
             else
             {
