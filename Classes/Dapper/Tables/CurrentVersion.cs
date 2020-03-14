@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace TelegramFunFactBot.Classes.Dapper.Tables
 {
-    [Table("CurrentVersion")]
-    public class CurrentVersion
+    [Table("Countdown")]
+    public class Countdown
     {
         [ExplicitKey]
-        public string version { get; set; }
-
+        public int messageId { get; set; }
+        public DateTime countdownEnd { get; set; }
+        public string title { get; set; }
+        public string chatId { get; set; }
     }
 }

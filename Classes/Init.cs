@@ -30,12 +30,13 @@ namespace TelegramFunFactBot.Classes
                 HandleFunFactSubscriber();
                 HandleMemeSubscriber();
                 HandleDeutscheMemeSubscriber();
+                UpdateCountDowns();
             }
             catch (Exception e)
             {
                 _dapperDB.WriteEventLog("Init", "Error", "There was an error" + e.Message, "CheckForSubscribedServices");
             }
-            
+
         }
 
         private async void HandleMemeSubscriber()
@@ -140,13 +141,53 @@ namespace TelegramFunFactBot.Classes
                         FunFact funFact = JsonConvert.DeserializeObject<FunFact>(responseBody);
 
                         string message = funFact.text + "\n" + "Quelle: " + funFact.source_url;
-                        _telegram.SendMessage(subscriber.chatId, message);
+                        await _telegram.SendMessage(subscriber.chatId, message);
                     }
                 }
             }
             catch (Exception e)
             {
                 _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "HandleFunFactSubscriber");
+            }
+        }
+
+        private async void UpdateCountDowns()
+        {
+            try
+            {
+                var allCountdowns = await _dapperDB.GetAllCountdowns();
+
+                foreach (var countdown in allCountdowns)
+                {
+                    try
+                    {
+                        if (countdown.countdownEnd > DateTime.UtcNow)
+                        {
+                            TimeSpan timeSpan = countdown.countdownEnd - DateTime.UtcNow;
+
+                            int days = ((int)Math.Floor(timeSpan.TotalDays));
+                            int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 60;
+                            int minutes = ((int)Math.Floor(timeSpan.TotalMinutes)) % 60;
+
+                            var message = "<b>" + countdown.title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;
+
+                            _telegram.UpdateMessage(countdown.chatId, countdown.messageId, message);
+                        }
+                        else
+                        {
+                            _dapperDB.StopCountdown(countdown.messageId);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", "There was an error processing the countdown with messageId " + countdown.messageId + " Error: " + e.Message, "UpdateCountDowns");
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "UpdateCountDowns");
             }
         }
 

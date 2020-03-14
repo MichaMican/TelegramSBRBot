@@ -7,7 +7,10 @@
 <b>/unsubmemes </b>| unsubscribes you from Memes
 <b>/subalmanmemes</b>| subscribe you to german memes
 <b>/unsubalmanmemes</b>| unsubscribes you from german memes
-<b>/iguana</b> sends you the current top post of r/iguanas
+<b>/iguana</b>| sends you the current top post of r/iguanas
+<b>/setcountdown [Date (dd.MM.yyyy)] [Time (HH:mm)] [Title]</b>| answers a Message which gets updated every minute till countdown is completed
+<b>/stopcountdown (Reply to countdown message you want to cancel)</b>| stops the countdown message you replied to
+<b>/getutctime</b>| returns the current UTC time which is used by the bot for all time references
 
 <i>cursive commands are only available in private conversation with the bot</i>
 [] = mandatory parameters

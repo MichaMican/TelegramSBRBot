@@ -296,5 +296,59 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             return await GetSubscribers<DeutscheMemeSubscriber>();
         }
+
+        public async void SetCountdown(string chatId, string title, DateTime countdownEnd, int messageId)
+        {
+            var countdownToSet = new Countdown();
+            countdownToSet.countdownEnd = countdownEnd;
+            countdownToSet.messageId = messageId;
+            countdownToSet.title = title;
+            countdownToSet.chatId = chatId;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(countdownToSet);
+                }
+            }
+            catch (Exception e)
+            {
+                WriteEventLog("Dapper", "Error", "Could not insert into Countdown table Error: " + e.Message);
+            }
+        }
+
+        public async Task<List<Countdown>> GetAllCountdowns()
+        {
+            var returnList = new List<Countdown>();
+
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                try
+                {
+                    returnList = (await connection.GetAllAsync<Countdown>()).ToList();
+                }
+                catch (Exception e)
+                {
+                    WriteEventLog("Dapper", "Error", "Could not read countdown table! Error: " + e.Message);
+                }
+            }
+
+            return returnList;
+        }
+
+        public async void StopCountdown(int messageId)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                try
+                {
+                    await connection.DeleteAsync(new Countdown() { messageId=messageId });
+                }
+                catch (Exception e)
+                {
+                    WriteEventLog("Dapper", "Error", "Could not remove element from countdown table! Error: " + e.Message);
+                }
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ using TelegramFunFactBot.Interfaces;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
+using TelegramFunFactBot.Models;
 
 namespace TelegramFunFactBot.Classes
 {
@@ -38,7 +39,14 @@ namespace TelegramFunFactBot.Classes
             var res = _client.PostAsync(url, content).Result;
         }
 
-        public void SendMessage(string chatId, string message, string parse_mode = "html")
+        private class MessageResponse
+        {
+            public bool ok { get; set; }
+            public Message result { get; set; }
+        }
+
+
+        public async Task<Message> SendMessage(string chatId, string message, string parse_mode = "html")
         {
             var answer = new TelegramAPIMessage();
             answer.chat_id = chatId;
@@ -51,7 +59,32 @@ namespace TelegramFunFactBot.Classes
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var res = _client.PostAsync(url, content).Result;
+            var res = await _client.PostAsync(url, content);
+
+            var resString = await res.Content.ReadAsStringAsync();
+
+            return (JsonConvert.DeserializeObject<MessageResponse>(resString)).result;
+        }
+
+        private class UpdateMessageBody
+        {
+            public string chat_id { get; set; }
+            public int message_id { get; set; }
+            public string text { get; set; }
+            public string parse_mode { get; set; }
+        }
+
+        public async void UpdateMessage(string chatId, int messageId, string text, string parse_mode = "html")
+        {
+            var body = new UpdateMessageBody() { chat_id = chatId, message_id = messageId, text = text, parse_mode=parse_mode };
+
+            var url = "https://api.telegram.org/bot" + _settings.botToken + "/editMessageText";
+
+            var json = JsonConvert.SerializeObject(body);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var res = await _client.PostAsync(url, content);
         }
     }
 }

@@ -1,9 +1,9 @@
 New commands:
- <b>/help</b> returns all available commands
- <b>/subalmanmemes</b> subscribe you to german memes
- <b>/unsubalmanmemes</b> unsubscribes you from german memes
- <b>/iguana</b> sends you the current top post of r/iguanas
+<b>/setcountdown [Date (dd.MM.yyyy)] [Time (HH:mm)] [Title]</b> answers a message which gets updated every minute till countdown is completed
+<b>/stopcountdown (Reply to countdown message you want to cancel)</b> stops the countdown message you replied to
+<b>/getutctime</b> returns the current UTC time which is used by the bot for all time references
+
 Further changes:
- - Introducing "Alman Memes Service": Sends you a german meme (from ich_iel) every 24h when subscribed to
- - Introducing "sexy iguanas": Make your day a bit brighter by looking at a sexy iguana pick provided by r/iguanas
- - Change Internal structure to improve performance and code readability
+- make internal structure run more async so multiple request at once are executed more performantly
+- fix Bug which caused the bot to idle if the FunFact API didn't respond
+- fix Bug where UpdateLog unsubscription resulted in unsubscribing from funfact service

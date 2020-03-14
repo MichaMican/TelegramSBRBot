@@ -102,7 +102,7 @@ namespace TelegramFunFactBot.Classes
             return returnList;
         }
 
-        public void HandleCommand(dynamic body)
+        public async void HandleCommand(dynamic body)
         {
             List<string[]> commands = new List<string[]>();
             if (body.message.entities != null)
@@ -117,6 +117,17 @@ namespace TelegramFunFactBot.Classes
             string username = body.message.from.username;
             string displayName = body.message.from.first_name + " " + body.message.from.last_name;
 
+            int? replyMessageId = null;
+
+            try
+            {
+                replyMessageId = body.message.reply_to_message.message_id;
+            }
+            catch
+            {
+                /*Fall through*/
+            }
+
 
             foreach (string[] command in commands)
             {
@@ -126,7 +137,7 @@ namespace TelegramFunFactBot.Classes
                     {
                         case "/start":
                             SubscribeToUpdates(chatId);
-                            _telegram.SendMessage(chatId, "Heyho :)");
+                            await _telegram.SendMessage(chatId, "Heyho :)");
                             break;
                         case "/help":
                         case "/help@sbrcs_bot":
@@ -136,43 +147,43 @@ namespace TelegramFunFactBot.Classes
                         case "/ping@sbrcs_bot":
                             if (chatType == "private")
                             {
-                                _telegram.SendMessage(chatId, "Pong");
+                                await _telegram.SendMessage(chatId, "Pong");
                             }
                             break;
                         case "/unsubupdates":
                         case "/unsubupdates@sbrcs_bot":
                             UnsubscribeToUpdates(chatId);
-                            _telegram.SendMessage(chatId, "Successfully unsubscribed from update log notification");
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from update log notification");
                             break;
                         case "/subfunfacts":
                         case "/subfunfacts@sbrcs_bot":
                             SubscribeToFunFacts(command, chatId);
-                            _telegram.SendMessage(chatId, "Successfully subscribed to FunFacts by Joseph Paul");
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to FunFacts by Joseph Paul");
                             break;
                         case "/unsubfunfacts":
                         case "/unsubfunfacts@sbrcs_bot":
                             UnsubscribeFromFunFacts(chatId);
-                            _telegram.SendMessage(chatId, "Successfully unsubscribed from FunFacts");
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from FunFacts");
                             break;
                         case "/submemes":
                         case "/submemes@sbrcs_bot":
                             SubscribeToMemes(command, chatId);
-                            _telegram.SendMessage(chatId, "Successfully subscribed to RedditMemes");
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to RedditMemes");
                             break;
                         case "/unsubmemes":
                         case "/unsubmemes@sbrcs_bot":
                             UnsubscribeFromMemes(chatId);
-                            _telegram.SendMessage(chatId, "Successfully unsubscribed from Memes");
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from Memes");
                             break;
                         case "/subalmanmemes":
                         case "/subalmanememes@sbrcs_bot":
                             SubscribeToDeutscheMemes(command, chatId);
-                            _telegram.SendMessage(chatId, "Successfully subscribed to Ich_Iel Memes");
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to Ich_Iel Memes");
                             break;
                         case "/unsubalmanmemes":
                         case "/unsubalmanmemes@sbrcs_bot":
                             UnsubscribeFromDeutscheMemes(chatId);
-                            _telegram.SendMessage(chatId, "Successfully unsubscribed from Ich_Iel Memes");
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from Ich_Iel Memes");
                             break;
                         case "/iguana":
                         case "/iguana@sbrcs_bot":
@@ -187,8 +198,20 @@ namespace TelegramFunFactBot.Classes
                             }
                             else
                             {
-                                _telegram.SendMessage(chatId, "This command is only available in private conversations with the bot");
+                                await _telegram.SendMessage(chatId, "This command is only available in private conversations with the bot");
                             }
+                            break;
+                        case "/setcountdown":
+                        case "/setcountdown@sbrcs_bot":
+                            SetCountdown(command, chatId);
+                            break;
+                        case "/stopcountdown":
+                        case "/stopcountdown@sbrcs_bot":
+                            StopCountdown(chatId, replyMessageId);
+                            break;
+                        case "/getutctime":
+                        case "/getutctime@sbrcs_bot":
+                            await _telegram.SendMessage(chatId, DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"));
                             break;
                         default:
                             /* Fall through */
@@ -197,7 +220,7 @@ namespace TelegramFunFactBot.Classes
                 }
                 catch
                 {
-                    _telegram.SendMessage(chatId, "There was an error while processing your command :(");
+                    await _telegram.SendMessage(chatId, "There was an error while processing your command :(");
                 }
             }
         }
@@ -216,7 +239,7 @@ namespace TelegramFunFactBot.Classes
 
         private void UnsubscribeToUpdates(string chatId)
         {
-            _dapperDB.UnsubscribeFromFunFacts(chatId);
+            _dapperDB.UnsubscribeFromUpdateLog(chatId);
         }
 
         private void UnsubscribeFromFunFacts(string chatId)
@@ -262,7 +285,7 @@ namespace TelegramFunFactBot.Classes
         {
             _dapperDB.UnsubscribeFromMemes(chatId);
         }
-        
+
         private void UnsubscribeFromDeutscheMemes(string chatId)
         {
             _dapperDB.UnsubscribeFromDeutscheMemes(chatId);
@@ -301,7 +324,7 @@ namespace TelegramFunFactBot.Classes
 
             _dapperDB.SubscribeToMemes(chatId, timeToUpdate);
         }
-        
+
         private void SubscribeToDeutscheMemes(string[] command, string chatId)
         {
             DateTime timeToUpdate = DateTime.Now;
@@ -363,15 +386,74 @@ namespace TelegramFunFactBot.Classes
         {
             var post = await (_redditPostHandler.GetRedditTopPostWithImageData("iguanas", 5));
 
-            if(post != null)
+            if (post != null)
             {
                 _telegram.SendImage(chatId, post.imageUrl, "<b>" + post.title + "</b> - Source: https://www.reddit.com" + post.permalink, "html");
             }
             else
             {
-                _telegram.SendMessage(chatId, "Sorry but i can't find a sexy leguan pic for you :(");
+                await _telegram.SendMessage(chatId, "Sorry but i can't find a sexy leguan pic for you :(");
             }
+        }
 
+        private async void SetCountdown(string[] command, string chatId)
+        {
+            if (command.Length >= 4)
+            {
+                string[] date = command[1].Split(".");
+                string[] time = command[2].Split(":");
+                string title = "";
+
+                for (int i = 3; i < command.Length; i++)
+                {
+                    title += command[i] + " ";
+                }
+
+
+
+                DateTime countdownEndTime = new DateTime(int.Parse(date[2]), int.Parse(date[1]), int.Parse(date[0]), int.Parse(time[0]), int.Parse(time[1]), 0);
+
+                if (countdownEndTime > DateTime.Now)
+                {
+                    TimeSpan timeSpan = countdownEndTime - DateTime.UtcNow;
+
+
+                    int days = ((int)Math.Floor(timeSpan.TotalDays));
+                    int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 60;
+                    int minutes = ((int)Math.Floor(timeSpan.TotalMinutes)) % 60;
+
+
+                    var message = "<b>" + title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;
+
+                    var messageRef = await _telegram.SendMessage(chatId, message);
+
+                    _dapperDB.SetCountdown(chatId, title, countdownEndTime, messageRef.message_id);
+                }
+                else
+                {
+                    await _telegram.SendMessage(chatId, "Please provide a DateTime which is in the future (Note: This bot uses UTC time as reference: Current UTC Time: " + DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm") + ")");
+                }
+
+                return;
+
+            }
+            else
+            {
+                await _telegram.SendMessage(chatId, "Please provide date and time and a title as a property");
+                return;
+            }
+        }
+
+        private async void StopCountdown(string chatId, int? messageId)
+        {
+            if (messageId.HasValue)
+            {
+                _dapperDB.StopCountdown(messageId.Value);
+            }
+            else
+            {
+                await _telegram.SendMessage(chatId, "Please reply to a countdown message");
+            }
 
         }
 
