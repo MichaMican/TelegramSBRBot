@@ -41,3 +41,14 @@ Further changes:
  - Introducing "sexy iguanas": Make your day a bit brighter by looking at a sexy iguana pick provided by r/iguanas
  - Change Internal structure to improve performance and code readability
 -----------------------------------------------------------------------------------------------
+v0.1.5 
+New commands:
+/setcountdown [Date (dd.MM.yyyy)] [Time (HH:mm)] [Title] answers a message which gets updated every minute till countdown is completed
+/stopcountdown (Reply to countdown message you want to cancel) stops the countdown message you replied to
+/getutctime returns the current UTC time which is used by the bot for all time references
+
+Further changes:
+- make internal structure run more async so multiple request at once are executed more performantly
+- fix Bug which caused the bot to idle if the FunFact API didn't respond
+- fix Bug where UpdateLog unsubscription resulted in unsubscribing from funfact service
+-----------------------------------------------------------------------------------------------
