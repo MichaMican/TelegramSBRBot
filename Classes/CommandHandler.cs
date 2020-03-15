@@ -213,6 +213,10 @@ namespace TelegramFunFactBot.Classes
                         case "/getutctime@sbrcs_bot":
                             await _telegram.SendMessage(chatId, DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm:ss"));
                             break;
+                        case "/aww":
+                        case "/aww@sbrcs_bot":
+                            SendAwwPic(chatId);
+                            break;
                         default:
                             /* Fall through */
                             break;
@@ -384,15 +388,29 @@ namespace TelegramFunFactBot.Classes
 
         private async void SendLizardPic(string chatId)
         {
-            var post = await (_redditPostHandler.GetRedditTopPostWithImageData("iguanas", 5));
+            var post = _redditPostHandler.GetPostWithImageData(await _redditPostHandler.GetRedditTopPostsData("iguanas", 5));
 
             if (post != null)
             {
-                _telegram.SendImage(chatId, post.imageUrl, "<b>" + post.title + "</b> - Source: https://www.reddit.com" + post.permalink, "html");
+                _telegram.SendImage(chatId, post.url, "<b>" + post.title + "</b> - Source: https://www.reddit.com" + post.permalink, "html");
             }
             else
             {
                 await _telegram.SendMessage(chatId, "Sorry but i can't find a sexy leguan pic for you :(");
+            }
+        }
+
+        private async void SendAwwPic(string chatId)
+        {
+            var post = _redditPostHandler.GetPostWithImageData(await _redditPostHandler.GetRedditRandomPostsData("aww", 5));
+
+            if (post != null)
+            {
+                _telegram.SendImage(chatId, post.url, "<b>" + post.title + "</b> - Source: https://www.reddit.com" + post.permalink, "html");
+            }
+            else
+            {
+                await _telegram.SendMessage(chatId, "Sorry but i can't find a Aww pic for you :(");
             }
         }
 

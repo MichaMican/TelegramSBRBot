@@ -1,4 +1,4 @@
 New commands:
-
+<b>/aww</b> - sends a picture that according to reddit makes you go aww
 Further changes:
 - fix hours display of countdown

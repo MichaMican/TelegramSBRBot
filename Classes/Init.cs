@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
+using TelegramFunFactBot.Models.RedditPostResponse;
 
 namespace TelegramFunFactBot.Classes
 {
@@ -41,7 +41,7 @@ namespace TelegramFunFactBot.Classes
 
         private async void HandleMemeSubscriber()
         {
-            RedditPostData data = null;
+            RedditPostChildData data = null;
             int maxNumberOfPosts = 5;
 
             try
@@ -55,12 +55,12 @@ namespace TelegramFunFactBot.Classes
 
                         if (data == null)
                         {
-                            data = await _redditPostHandler.GetRedditTopPostWithImageData("memes", maxNumberOfPosts);
+                            data = _redditPostHandler.GetPostWithImageData(await _redditPostHandler.GetRedditTopPostsData("memes", maxNumberOfPosts));
                         }
 
-                        if (data.imageUrl != "")
+                        if (!String.IsNullOrEmpty(data.url))
                         {
-                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
+                            _telegram.SendImage(subscriber.chatId, data.url, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
                         }
                         else
                         {
@@ -79,7 +79,7 @@ namespace TelegramFunFactBot.Classes
         private async void HandleDeutscheMemeSubscriber()
         {
 
-            RedditPostData data = null;
+            RedditPostChildData data = null;
             int maxNumberOfPosts = 5;
 
             try
@@ -93,12 +93,12 @@ namespace TelegramFunFactBot.Classes
 
                         if (data == null)
                         {
-                            data = await _redditPostHandler.GetRedditTopPostWithImageData("ich_iel", maxNumberOfPosts);
+                            data = _redditPostHandler.GetPostWithImageData(await _redditPostHandler.GetRedditTopPostsData("ich_iel", maxNumberOfPosts));
                         }
 
-                        if (data.imageUrl != "")
+                        if (!String.IsNullOrEmpty(data.url))
                         {
-                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
+                            _telegram.SendImage(subscriber.chatId, data.url, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
                         }
                         else
                         {

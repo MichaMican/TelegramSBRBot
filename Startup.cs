@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using System;
 using TelegramFunFactBot.Classes;
 using TelegramFunFactBot.Classes.Dapper;
-using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot
