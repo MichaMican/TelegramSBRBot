@@ -166,7 +166,7 @@ namespace TelegramFunFactBot.Classes
                             TimeSpan timeSpan = countdown.countdownEnd - DateTime.UtcNow;
 
                             int days = ((int)Math.Floor(timeSpan.TotalDays));
-                            int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 60;
+                            int hours = ((int)Math.Floor(timeSpan.TotalHours)) % 24;
                             int minutes = ((int)Math.Floor(timeSpan.TotalMinutes)) % 60;
 
                             var message = "<b>" + countdown.title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;

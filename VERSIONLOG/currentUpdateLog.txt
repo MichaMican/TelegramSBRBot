@@ -1,9 +1,4 @@
 New commands:
-<b>/setcountdown [Date (dd.MM.yyyy)] [Time (HH:mm)] [Title]</b> answers a message which gets updated every minute till countdown is completed
-<b>/stopcountdown (Reply to countdown message you want to cancel)</b> stops the countdown message you replied to
-<b>/getutctime</b> returns the current UTC time which is used by the bot for all time references
 
 Further changes:
-- make internal structure run more async so multiple request at once are executed more performantly
-- fix Bug which caused the bot to idle if the FunFact API didn't respond
-- fix Bug where UpdateLog unsubscription resulted in unsubscribing from funfact service
+- fix hours display of countdown
