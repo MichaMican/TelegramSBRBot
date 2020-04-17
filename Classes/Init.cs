@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
 
@@ -45,7 +46,7 @@ namespace TelegramFunFactBot.Classes
         private async Task CheckForCsgoUpdate()
         {
             //Only check every 5 minutes (So Valve doesnt get mad at me)
-            if (DateTime.Now.Minute % 5 == 0)
+            if (DateTime.Now.Minute % 5 == 0 || true)
             {
                 try
                 {
@@ -54,20 +55,36 @@ namespace TelegramFunFactBot.Classes
                     HtmlDocument pageDocument = new HtmlDocument();
                     pageDocument.LoadHtml(resultString);
 
-                    var newestCsUpdate = pageDocument.DocumentNode.SelectSingleNode("//*[@id=\"post_container\"]/div[1]/h2/a").InnerText;
+                    var linkElement = pageDocument.DocumentNode.SelectSingleNode("//*[@id=\"post_container\"]/div[1]/h2/a");
+
+                    var newestCsUpdate = linkElement.InnerText;
                     string dateString = Regex.Replace(newestCsUpdate, "[^(0-9/).]", "");
                     string lastCsUpdate = _dapperDB.LoadFromDBStorage("lastCsgoUpdate");
+
+                    var link = linkElement.Attributes[0].Value;
 
                     if (lastCsUpdate != dateString)
                     {
                         _dapperDB.SaveToDBStorage("lastCsgoUpdate", dateString);
+
+                        var firstUpdateLogs = pageDocument.DocumentNode.SelectSingleNode("//*[@id=\"post_container\"]/div[1]");
+                        string releaseNotes = "Release Notes:\n";
+                        foreach (var element in firstUpdateLogs.ChildNodes)
+                        {
+                            if (element.Name == "p")
+                            {
+                                releaseNotes += element.InnerText + "\n";
+                            }
+                        }
+
+                        releaseNotes = HttpUtility.HtmlDecode(releaseNotes);
 
                         if (_dapperDB.LoadFromDBStorage("lastCsgoUpdate") == dateString)
                         {
                             var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
                             foreach (var sub in subs)
                             {
-                                await _telegram.SendMessage(sub.chatId, "<b>New CS:GO release for " + dateString + "</b>\nhttps://blog.counter-strike.net/index.php/category/updates/");
+                                await _telegram.SendMessage(sub.chatId, "<b>New CS:GO release for " + dateString + "</b>\n"+ link + "\n\nAll past updates: https://blog.counter-strike.net/index.php/category/updates/ \n\n"+ releaseNotes);
                             }
                         }
                     }

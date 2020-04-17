@@ -52,3 +52,12 @@ Further changes:
 - fix Bug which caused the bot to idle if the FunFact API didn't respond
 - fix Bug where UpdateLog unsubscription resulted in unsubscribing from funfact service
 -----------------------------------------------------------------------------------------------
+v0.1.6 
+New commands:
+/subcsgoupdates subscribes you to csgo updates
+/unsubcsgoupdates unsubscribes you to csgo updates
+Further changes:
+- introducing CSGO Update subscribe service: All 5 Minute the bot checks if there is a new CS version - if there is you'll get notified imidiately!
+- fix hours display of countdown
+- fix async send methods
+------------------------------------------------
