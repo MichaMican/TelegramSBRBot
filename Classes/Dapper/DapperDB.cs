@@ -350,5 +350,88 @@ namespace TelegramFunFactBot.Classes.Dapper
                 }
             }
         }
+
+        public async void SubscribeToCsgoUpdates(string chatId)
+        {
+            await Subscribe<CSGOUpdatesSubscriber>(chatId, DateTime.Now);
+        }
+
+        public async void UnsubscribeFromCsgoUpdates(string chatId)
+        {
+            await Unsubscribe<CSGOUpdatesSubscriber>(chatId);
+        }
+
+        public async Task<List<CSGOUpdatesSubscriber>> GetAllCsgoUpdateSubscriber()
+        {
+            return await GetSubscribers<CSGOUpdatesSubscriber>();
+        }
+
+        public void SaveToDBStorage(string key, string value)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                bool keyIsInDB = false;
+                try
+                {
+                    var res = connection.Get<DBStorage>(key);
+                    keyIsInDB |= res != null;
+                }
+                catch
+                {
+                    //Fall through
+                }
+                if (keyIsInDB)
+                {
+                    var objToUpdate = new DBStorage
+                    {
+                        key = key,
+                        value = value
+                    };
+                    try
+                    {
+                        connection.Update(objToUpdate);
+                    }
+                    catch (Exception e)
+                    {
+                        WriteEventLog("Dapper", "Error", "Could not Save to DBStorage (update)! Error: " + e.Message);
+                        throw e;
+                    }
+                }
+                else
+                {
+                    var objToInsert = new DBStorage
+                    {
+                        key = key,
+                        value = value
+                    };
+                    try
+                    {
+                        connection.Insert(objToInsert);
+                    }
+                    catch (Exception e)
+                    {
+                        WriteEventLog("Dapper", "Error", "Could not Save to DBStorage (Inser)! Error: " + e.Message);
+                        throw e;
+                    }
+                }
+                
+            }
+        }
+
+        public string LoadFromDBStorage(string key)
+        {
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                try
+                {
+                    return connection.Get<DBStorage>(key).value;
+                }
+                catch (Exception e)
+                {
+                    WriteEventLog("Dapper", "Error", "Could not remove element from countdown table! Error: " + e.Message);
+                }
+                return null;
+            }
+        }
     }
 }

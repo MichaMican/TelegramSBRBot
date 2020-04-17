@@ -62,8 +62,9 @@ namespace TelegramFunFactBot.Classes
             var res = await _client.PostAsync(url, content);
 
             var resString = await res.Content.ReadAsStringAsync();
+            var resMessage = (JsonConvert.DeserializeObject<MessageResponse>(resString)).result;
 
-            return (JsonConvert.DeserializeObject<MessageResponse>(resString)).result;
+            return resMessage;
         }
 
         private class UpdateMessageBody
@@ -85,6 +86,11 @@ namespace TelegramFunFactBot.Classes
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var res = await _client.PostAsync(url, content);
+        }
+
+        public void SendErrorMessage(string errorMessage)
+        {
+            SendMessage(_settings.devChatId, errorMessage);
         }
     }
 }

@@ -174,6 +174,16 @@ namespace TelegramFunFactBot.Classes
                         case "/unsubmemes@sbrcs_bot":
                             UnsubscribeFromMemes(chatId);
                             await _telegram.SendMessage(chatId, "Successfully unsubscribed from Memes");
+                            break; 
+                        case "/subcsgoupdates":
+                        case "/subcsgoupdates@sbrcs_bot":
+                            SubscribeToCsgoUpdates(chatId);
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to CSGO Updates");
+                            break;
+                        case "/unsubcsgoupdates":
+                        case "/unsubcsgoupdates@sbrcs_bot":
+                            UnsubscribeFromCsgoUpdates(chatId);
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from CSGO Updates");
                             break;
                         case "/subalmanmemes":
                         case "/subalmanememes@sbrcs_bot":
@@ -225,11 +235,21 @@ namespace TelegramFunFactBot.Classes
             }
         }
 
-        private void SendHelp(string chatId)
+        private void UnsubscribeFromCsgoUpdates(string chatId)
+        {
+            _dapperDB.UnsubscribeFromCsgoUpdates(chatId);
+        }
+
+        private void SubscribeToCsgoUpdates(string chatId)
+        {
+            _dapperDB.SubscribeToCsgoUpdates(chatId);
+        }
+
+        private async void SendHelp(string chatId)
         {
             string allCommands = System.IO.File.ReadAllText(@"./VERSIONLOG/allCommands.txt");
 
-            _telegram.SendMessage(chatId, allCommands);
+            await _telegram.SendMessage(chatId, allCommands);
         }
 
         private void SubscribeToUpdates(string chatId)
@@ -359,7 +379,7 @@ namespace TelegramFunFactBot.Classes
             _dapperDB.SubscribeToDeutscheMemes(chatId, timeToUpdate);
         }
 
-        private void newIdea(string[] command, string chatId, string userName, string displayName)
+        private async void newIdea(string[] command, string chatId, string userName, string displayName)
         {
             try
             {
@@ -373,12 +393,12 @@ namespace TelegramFunFactBot.Classes
 
                 string ideaMessage = "Idea: <b>" + title + "</b>\nDescription: " + description + "\n------------------------------------------------------------\nThis idea was submitted by @" + userName + " (" + displayName + ")";
 
-                _telegram.SendMessage(_settings.ideaChatId, ideaMessage);
-                _telegram.SendMessage(chatId, "Your idea was submitted");
+                await _telegram.SendMessage(_settings.ideaChatId, ideaMessage);
+                await _telegram.SendMessage(chatId, "Your idea was submitted");
             }
             catch
             {
-                _telegram.SendMessage(chatId, "There was an error while processing your request. Make sure you use the correct syntax: /idea [Title] [Description]");
+                await _telegram.SendMessage(chatId, "There was an error while processing your request. Make sure you use the correct syntax: /idea [Title] [Description]");
             }
         }
 
@@ -428,8 +448,10 @@ namespace TelegramFunFactBot.Classes
                         var message = "<b>" + title + "</b>| Days: " + days + " Hours: " + hours + " Minutes: " + minutes;
 
                         var messageRef = await _telegram.SendMessage(chatId, message);
-
-                        _dapperDB.SetCountdown(chatId, title, countdownEndTime, messageRef.message_id);
+                        if(messageRef != null)
+                        {
+                            _dapperDB.SetCountdown(chatId, title, countdownEndTime, messageRef.message_id);
+                        }
                     }
                     else
                     {

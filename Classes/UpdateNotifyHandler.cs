@@ -35,7 +35,7 @@ namespace TelegramFunFactBot.Classes
 
                     foreach (var sub in subscribers)
                     {
-                        _telegram.SendMessage(sub.chatId, updateMessage);
+                        await _telegram.SendMessage(sub.chatId, updateMessage);
                     }
                 }
             } 

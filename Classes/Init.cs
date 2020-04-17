@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
@@ -31,12 +33,52 @@ namespace TelegramFunFactBot.Classes
                 HandleMemeSubscriber();
                 HandleDeutscheMemeSubscriber();
                 UpdateCountDowns();
+                CheckForCsgoUpdate();
             }
             catch (Exception e)
             {
                 _dapperDB.WriteEventLog("Init", "Error", "There was an error" + e.Message, "CheckForSubscribedServices");
             }
 
+        }
+
+        private async void CheckForCsgoUpdate()
+        {
+            //Only check every 5 minutes (So Valve doesnt get mad at me)
+            if (DateTime.Now.Minute % 5 == 0)
+            {
+                try
+                {
+                    var result = await _httpHandler.Get("https://blog.counter-strike.net/index.php/category/updates/");
+                    var resultString = await result.Content.ReadAsStringAsync();
+                    HtmlDocument pageDocument = new HtmlDocument();
+                    pageDocument.LoadHtml(resultString);
+
+                    var newestCsUpdate = pageDocument.DocumentNode.SelectSingleNode("//*[@id=\"post_container\"]/div[1]/h2/a").InnerText;
+                    string dateString = Regex.Replace(newestCsUpdate, "[^(0-9/).]", "");
+                    string lastCsUpdate = _dapperDB.LoadFromDBStorage("lastCsgoUpdate");
+
+                    if(lastCsUpdate != dateString)
+                    {
+                        _dapperDB.SaveToDBStorage("lastCsgoUpdate", dateString);
+
+                        if(_dapperDB.LoadFromDBStorage("lastCsgoUpdate") == dateString)
+                        {
+                            var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
+                            foreach (var sub in subs)
+                            {
+                                await _telegram.SendMessage(sub.chatId, "<b>CSGO release for " + dateString + "</b>\nhttps://blog.counter-strike.net/index.php/category/updates/");
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    _dapperDB.WriteEventLog("Init", "Error", "Could not check for CS updates - Exception: " + e.Message);
+                    _telegram.SendErrorMessage("There is something wrong with the CSUpdate checker - FIX IT!");
+                }
+            }
         }
 
         private async void HandleMemeSubscriber()

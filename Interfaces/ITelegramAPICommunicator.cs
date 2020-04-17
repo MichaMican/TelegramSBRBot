@@ -11,5 +11,6 @@ namespace TelegramFunFactBot.Interfaces
         Task<Message> SendMessage(string chatId, string message, string parse_mode = "html");
         void SendImage(string chatId, string imageURL, string caption = "", string parse_mode = "");
         void UpdateMessage(string chatId, int messageId, string text, string parse_mode = "html");
+        void SendErrorMessage(string errorMessage);
     }
 }
