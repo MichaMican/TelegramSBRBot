@@ -1,4 +1,7 @@
 New commands:
-
+<b>/subcsgoupdates</b> subscribes you to csgo updates
+<b>/unsubcsgoupdates</b> unsubscribes you to csgo updates
 Further changes:
+- introducing CSGO Update subscribe service: All 5 Minute the bot checks if there is a new CS version - if there is you'll get notified imidiately!
 - fix hours display of countdown
+- fix async send methods

@@ -67,7 +67,7 @@ namespace TelegramFunFactBot.Classes
                             var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
                             foreach (var sub in subs)
                             {
-                                await _telegram.SendMessage(sub.chatId, "<b>CSGO release for " + dateString + "</b>\nhttps://blog.counter-strike.net/index.php/category/updates/");
+                                await _telegram.SendMessage(sub.chatId, "<b>New CS:GO release for " + dateString + "</b>\nhttps://blog.counter-strike.net/index.php/category/updates/");
                             }
                         }
                     }

@@ -373,10 +373,10 @@ namespace TelegramFunFactBot.Classes.Dapper
                 bool keyIsInDB = false;
                 try
                 {
-                    var res = connection.Get<DBStorage>(key);
-                    keyIsInDB |= res != null;
+                    var res = connection.Query<DBStorage>("SELECT * FROM DBStorage WHERE [key]=@key", new { key = key }).ToList();
+                    keyIsInDB |= res.Count > 0;
                 }
-                catch
+                catch (Exception e)
                 {
                     //Fall through
                 }
@@ -424,7 +424,7 @@ namespace TelegramFunFactBot.Classes.Dapper
             {
                 try
                 {
-                    return connection.Get<DBStorage>(key).value;
+                    return connection.Query<DBStorage>("SELECT * FROM DBStorage WHERE [key]=@key", new { key = key }).ToList().First().value;
                 }
                 catch (Exception e)
                 {
