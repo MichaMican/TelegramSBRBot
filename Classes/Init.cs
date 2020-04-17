@@ -46,7 +46,7 @@ namespace TelegramFunFactBot.Classes
         private async Task CheckForCsgoUpdate()
         {
             //Only check every 5 minutes (So Valve doesnt get mad at me)
-            if (DateTime.Now.Minute % 5 == 0 || true)
+            if (DateTime.Now.Minute % 5 == 0)
             {
                 try
                 {
