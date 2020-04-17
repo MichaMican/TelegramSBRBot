@@ -25,15 +25,15 @@ namespace TelegramFunFactBot.Classes
             _redditPostHandler = redditPostHandler;
         }
 
-        public void CheckForSubscribedServices()
+        public async void CheckForSubscribedServices()
         {
             try
             {
-                HandleFunFactSubscriber();
-                HandleMemeSubscriber();
-                HandleDeutscheMemeSubscriber();
-                UpdateCountDowns();
-                CheckForCsgoUpdate();
+                await HandleFunFactSubscriber();
+                await HandleMemeSubscriber();
+                await HandleDeutscheMemeSubscriber();
+                await UpdateCountDowns();
+                await CheckForCsgoUpdate();
             }
             catch (Exception e)
             {
@@ -42,7 +42,7 @@ namespace TelegramFunFactBot.Classes
 
         }
 
-        private async void CheckForCsgoUpdate()
+        private async Task CheckForCsgoUpdate()
         {
             //Only check every 5 minutes (So Valve doesnt get mad at me)
             if (DateTime.Now.Minute % 5 == 0)
@@ -58,11 +58,11 @@ namespace TelegramFunFactBot.Classes
                     string dateString = Regex.Replace(newestCsUpdate, "[^(0-9/).]", "");
                     string lastCsUpdate = _dapperDB.LoadFromDBStorage("lastCsgoUpdate");
 
-                    if(lastCsUpdate != dateString)
+                    if (lastCsUpdate != dateString)
                     {
                         _dapperDB.SaveToDBStorage("lastCsgoUpdate", dateString);
 
-                        if(_dapperDB.LoadFromDBStorage("lastCsgoUpdate") == dateString)
+                        if (_dapperDB.LoadFromDBStorage("lastCsgoUpdate") == dateString)
                         {
                             var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
                             foreach (var sub in subs)
@@ -77,11 +77,12 @@ namespace TelegramFunFactBot.Classes
                 {
                     _dapperDB.WriteEventLog("Init", "Error", "Could not check for CS updates - Exception: " + e.Message);
                     _telegram.SendErrorMessage("There is something wrong with the CSUpdate checker - FIX IT!");
+                    _telegram.SendErrorMessage("Error was: " + e.Message);
                 }
             }
         }
 
-        private async void HandleMemeSubscriber()
+        private async Task HandleMemeSubscriber()
         {
             RedditPostData data = null;
             int maxNumberOfPosts = 5;
@@ -118,7 +119,7 @@ namespace TelegramFunFactBot.Classes
         }
 
 
-        private async void HandleDeutscheMemeSubscriber()
+        private async Task HandleDeutscheMemeSubscriber()
         {
 
             RedditPostData data = null;
@@ -166,7 +167,7 @@ namespace TelegramFunFactBot.Classes
             public string permalink { get; set; }
         }
 
-        private async void HandleFunFactSubscriber()
+        private async Task HandleFunFactSubscriber()
         {
             try
             {
@@ -193,7 +194,7 @@ namespace TelegramFunFactBot.Classes
             }
         }
 
-        private async void UpdateCountDowns()
+        private async Task UpdateCountDowns()
         {
             try
             {
