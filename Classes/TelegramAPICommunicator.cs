@@ -77,7 +77,7 @@ namespace TelegramFunFactBot.Classes
 
         public async void UpdateMessage(string chatId, int messageId, string text, string parse_mode = "html")
         {
-            var body = new UpdateMessageBody() { chat_id = chatId, message_id = messageId, text = text, parse_mode=parse_mode };
+            var body = new UpdateMessageBody() { chat_id = chatId, message_id = messageId, text = text, parse_mode = parse_mode };
 
             var url = "https://api.telegram.org/bot" + _settings.botToken + "/editMessageText";
 
@@ -91,6 +91,24 @@ namespace TelegramFunFactBot.Classes
         public void SendErrorMessage(string errorMessage)
         {
             SendMessage(_settings.devChatId, errorMessage);
+        }
+
+        private class LeaveChatBody
+        {
+            public string chat_id { get; set; }
+        }
+
+        public async void LeaveChat(string chatId)
+        {
+            var body = new UpdateMessageBody() { chat_id = chatId };
+
+            var url = "https://api.telegram.org/bot" + _settings.botToken + "/leaveChat";
+
+            var json = JsonConvert.SerializeObject(body);
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var res = await _client.PostAsync(url, content);
         }
     }
 }

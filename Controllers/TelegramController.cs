@@ -17,11 +17,17 @@ namespace TelegramFunFactBot.Controllers
     {
         private readonly ICommandHandler _commandHandler;
         private readonly IDapperDB _dapperDB;
+        private readonly ITelegramAPICommunicator _telegramAPI;
+        private readonly List<long> _blockedUsers = new List<long>()
+        {
+            -1001353479498
+        };
 
-        public TelegramController(ICommandHandler commandHandler, IDapperDB dapperDB)
+        public TelegramController(ICommandHandler commandHandler, IDapperDB dapperDB, ITelegramAPICommunicator telegramAPI)
         {
             _commandHandler = commandHandler;
             _dapperDB = dapperDB;
+            _telegramAPI = telegramAPI;
         }
 
         [HttpPost("new-message")]
@@ -29,8 +35,20 @@ namespace TelegramFunFactBot.Controllers
         {
             try
             {
-                _commandHandler.HandleCommand(body);
-                _dapperDB.WriteRequestLog(body.ToString());
+                //only look at messages from chats (not from eg. Channels)
+                if (body.message != null)
+                {
+                    if (!_blockedUsers.Contains(Convert.ToInt64(body.message.chat.id)))
+                    {
+                        _commandHandler.HandleCommand(body);
+                        _dapperDB.WriteRequestLog(body.ToString());
+                    }
+                } else if (body.channel_post != null)
+                {
+                    _telegramAPI.LeaveChat(body.channel_post.chat.id);
+                    _dapperDB.UnsubscribeFromUpdateLog(body.channel_post.chat.id);
+                }
+                
             }
             catch (Exception e)
             {
