@@ -15,5 +15,5 @@ A Telegram messenger bot, with different functions.
 
 
 ## Special Thanks
-Special Thanks to [Joseph Paul](https://jsph.pl/) for letting me use his [RandomUslessFactsAPI](https://uselessfacts.jsph.pl/) as a source for the FunFact "subscribtion" service
+Special Thanks to [Joseph Paul](https://jsph.pl/) for letting me use his [RandomUslessFactsAPI](https://uselessfacts.jsph.pl/) as a source for the FunFact "subscription" service
 
