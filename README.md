@@ -10,7 +10,7 @@ A Telegram messenger bot, with different functions.
 - deploy the program to a webservice (e.g. Azure WebService)
 - run this command in cmd (replace <> with your stuff): 
   ```shell
-  curl -F “url=https://<YOURDOMAIN.EXAMPLE>/api/Telegram/new-message" https://api.telegram.org/bot<YOURTOKEN>/setWebhook
+  curl -F "url=https://<YOURDOMAIN.EXAMPLE>/api/Telegram/new-message" https://api.telegram.org/bot<YOURTOKEN>/setWebhook
   ```
 
 
