@@ -30,11 +30,15 @@ namespace TelegramFunFactBot.Interfaces
         Task<List<DeutscheMemeSubscriber>> GetDeutscheMemesSubscribers();
         Task<List<UpdateLogSubscriber>> GetAllUpdateSubscriber();
         Task<List<CSGOUpdatesSubscriber>> GetAllCsgoUpdateSubscriber();
+        Task<List<DuckSubscriber>> GetAllDuckSubscriber();
         void SubscribeToUpdateLog(string chatId);
         void UnsubscribeFromUpdateLog(string chatId);
         void SetCountdown(string chatId, string title, DateTime countdownEnd, int messageId);
         Task<List<Countdown>> GetAllCountdowns();
         void StopCountdown(int messageId);
+        void SubscribeToDucks(string chatId, DateTime timeToUpdate);
+        void UnsubscribeToDucks(string chatId);
+        void UpdateDucksNextUpdateOn(string chatId, DateTime nextUpdateOn);
 
     }
 }

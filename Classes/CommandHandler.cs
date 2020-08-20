@@ -223,6 +223,16 @@ namespace TelegramFunFactBot.Classes
                         case "/getutctime@sbrcs_bot":
                             await _telegram.SendMessage(chatId, DateTime.UtcNow.ToString("dd.MM.yyyy-HH:mm:ss"));
                             break;
+                        case "/subducks":
+                        case "/subducks@sbrcs_bot":
+                            SubscribeToDucks(command, chatId);
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to awesome duck images");
+                            break;
+                        case "/unsubducks":
+                        case "/unsubduck@sbrcs_bot":
+                            UnsubscribeFromDucks(chatId);
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from duck images");
+                            break;
                         default:
                             /* Fall through */
                             break;
@@ -233,6 +243,45 @@ namespace TelegramFunFactBot.Classes
                     await _telegram.SendMessage(chatId, "There was an error while processing your command :(");
                 }
             }
+        }
+
+        private void UnsubscribeFromDucks(string chatId)
+        {
+            _dapperDB.UnsubscribeToDucks(chatId);
+        }
+
+        private void SubscribeToDucks(string[] command, string chatId)
+        {
+            DateTime timeToUpdate = DateTime.Now;
+
+            try
+            {
+                if (command.Length > 1) //this means after the command there is a property provided
+                {
+                    var time = command[1].Split(":");
+
+                    if (time.Length == 2)
+                    {
+                        int hours = Int32.Parse(time[0]);
+                        int minutes = Int32.Parse(time[1]);
+
+                        if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                        {
+                            timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                            if (timeToUpdate < DateTime.Now)
+                            {
+                                timeToUpdate = timeToUpdate.AddDays(1);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                /*Fall through*/
+            }
+
+            _dapperDB.SubscribeToDucks(chatId, timeToUpdate);
         }
 
         private void UnsubscribeFromCsgoUpdates(string chatId)

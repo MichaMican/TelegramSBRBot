@@ -433,5 +433,25 @@ namespace TelegramFunFactBot.Classes.Dapper
                 return null;
             }
         }
+
+        public async Task<List<DuckSubscriber>> GetAllDuckSubscriber()
+        {
+            return await GetSubscribers<DuckSubscriber>();
+        }
+
+        public async void SubscribeToDucks(string chatId, DateTime timeToUpdate)
+        {
+            await Subscribe<DuckSubscriber>(chatId, timeToUpdate);
+        }
+
+        public async void UnsubscribeToDucks(string chatId)
+        {
+            await Unsubscribe<DuckSubscriber>(chatId);
+        }
+
+        public async void UpdateDucksNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            await UpdateNextUpdateOn<DeutscheMemeSubscriber>(chatId, nextUpdateOn);
+        }
     }
 }

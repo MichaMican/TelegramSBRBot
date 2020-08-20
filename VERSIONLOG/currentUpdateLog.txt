@@ -1,2 +1,5 @@
 New commands:
+<b>/subducks</b> subscribes you to a daily dose of ducks :)
+<b>/unsubducks</b> unsubscribes you from your daily dose of ducks :(
 Further changes:
+- introducing duck image subscribe service: receive a every day a duck image at a fixed time

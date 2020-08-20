@@ -7,6 +7,8 @@
 <b>/unsubmemes </b>| unsubscribes you from Memes
 <b>/subalmanmemes</b>| subscribe you to german memes
 <b>/unsubalmanmemes</b>| unsubscribes you from german memes
+<b>/subducks (Time in HH:mm UTC format)</b>| subscribe you to a daily duck
+<b>/unsubducks</b>| unsubscribes you from receiving a daily duck
 <b>/subcsgoupdates </b>| Bot will send you the newest csgo update when it detects a new update been published
 <b>/unsubcsgoupdates </b>| unsubscribes you from csgoudpates
 <b>/iguana</b>| sends you the current top post of r/iguanas

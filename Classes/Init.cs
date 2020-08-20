@@ -33,6 +33,7 @@ namespace TelegramFunFactBot.Classes
                 await HandleFunFactSubscriber();
                 await HandleMemeSubscriber();
                 await HandleDeutscheMemeSubscriber();
+                await HandleDuckSubscriber();
                 await UpdateCountDowns();
                 await CheckForCsgoUpdate();
             }
@@ -96,6 +97,42 @@ namespace TelegramFunFactBot.Classes
                     _telegram.SendErrorMessage("There is something wrong with the CSUpdate checker - FIX IT!");
                     _telegram.SendErrorMessage("Error was: " + e.Message);
                 }
+            }
+        }
+
+        private async Task HandleDuckSubscriber()
+        {
+            RedditPostData data = null;
+            int maxNumberOfPosts = 5;
+
+            try
+            {
+                var subscribers = await _dapperDB.GetAllDuckSubscriber();
+                foreach (var subscriber in subscribers)
+                {
+                    if (DateTime.Now > subscriber.nextUpdateOn)
+                    {
+                        _dapperDB.UpdateDucksNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
+
+                        if (data == null)
+                        {
+                            data = await _redditPostHandler.GetRedditTopPostWithImageData("duck", maxNumberOfPosts);
+                        }
+
+                        if (data.imageUrl != "")
+                        {
+                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
+                        }
+                        else
+                        {
+                            _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", "Reddit didn't provide an image in the top 5 posts :(", "HandleDuckSubscriber");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "HandleDuckSubscriber");
             }
         }
 
