@@ -61,3 +61,10 @@ Further changes:
 - fix hours display of countdown
 - fix async send methods
 ------------------------------------------------
+v0.2.0 
+New commands:
+/subducks subscribes you to a daily dose of ducks :)
+/unsubducks unsubscribes you from your daily dose of ducks :(
+Further changes:
+- introducing duck image subscribe service: receive a every day a duck image at a fixed time
+------------------------------------------------
