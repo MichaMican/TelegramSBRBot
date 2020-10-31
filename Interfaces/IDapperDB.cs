@@ -31,6 +31,7 @@ namespace TelegramFunFactBot.Interfaces
         Task<List<UpdateLogSubscriber>> GetAllUpdateSubscriber();
         Task<List<CSGOUpdatesSubscriber>> GetAllCsgoUpdateSubscriber();
         Task<List<DuckSubscriber>> GetAllDuckSubscriber();
+        Task<List<AlpacaSubscriber>> GetAllAlpacaSubscriber();
         void SubscribeToUpdateLog(string chatId);
         void UnsubscribeFromUpdateLog(string chatId);
         void SetCountdown(string chatId, string title, DateTime countdownEnd, int messageId);
@@ -39,6 +40,8 @@ namespace TelegramFunFactBot.Interfaces
         void SubscribeToDucks(string chatId, DateTime timeToUpdate);
         void UnsubscribeToDucks(string chatId);
         void UpdateDucksNextUpdateOn(string chatId, DateTime nextUpdateOn);
-
+        void UnsubscribeFromAlpacasAsync(string chatId);
+        void SubscribeToAlpacasAsync(string chatId, DateTime timeToUpdate);
+        void UpdateAlpacasNextUpdateOn(string chatId, DateTime nextUpdateOn);
     }
 }

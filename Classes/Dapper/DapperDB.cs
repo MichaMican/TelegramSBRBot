@@ -451,7 +451,27 @@ namespace TelegramFunFactBot.Classes.Dapper
 
         public async void UpdateDucksNextUpdateOn(string chatId, DateTime nextUpdateOn)
         {
-            await UpdateNextUpdateOn<DeutscheMemeSubscriber>(chatId, nextUpdateOn);
+            await UpdateNextUpdateOn<DuckSubscriber>(chatId, nextUpdateOn);
+        }
+
+        public async Task<List<AlpacaSubscriber>> GetAllAlpacaSubscriber()
+        {
+            return await GetSubscribers<AlpacaSubscriber>();
+        }
+
+        public async void UnsubscribeFromAlpacasAsync(string chatId)
+        {
+            await Unsubscribe<AlpacaSubscriber>(chatId);
+        }
+
+        public async void SubscribeToAlpacasAsync(string chatId, DateTime timeToUpdate)
+        {
+            await Subscribe<AlpacaSubscriber>(chatId, timeToUpdate);
+        }
+
+        public async void UpdateAlpacasNextUpdateOn(string chatId, DateTime nextUpdateOn)
+        {
+            await UpdateNextUpdateOn<AlpacaSubscriber>(chatId, nextUpdateOn);
         }
     }
 }

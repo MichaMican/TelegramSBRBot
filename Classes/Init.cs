@@ -34,6 +34,7 @@ namespace TelegramFunFactBot.Classes
                 await HandleMemeSubscriber();
                 await HandleDeutscheMemeSubscriber();
                 await HandleDuckSubscriber();
+                await HandleAlpacaSubscriber();
                 await UpdateCountDowns();
                 await CheckForCsgoUpdate();
             }
@@ -100,6 +101,19 @@ namespace TelegramFunFactBot.Classes
             }
         }
 
+        private int CalcDaysToAddOnNextUpdate(DateTime nextUpdate)
+        {
+            var timeDifference = DateTime.Now - nextUpdate;
+            var daysToAdd = (int) Math.Round(timeDifference.TotalDays) + 1;
+            //Sanity check
+            if(daysToAdd < 1)
+            {
+                daysToAdd = 1;
+            }
+
+            return daysToAdd;
+        }
+
         private async Task HandleDuckSubscriber()
         {
             RedditPostData data = null;
@@ -112,7 +126,7 @@ namespace TelegramFunFactBot.Classes
                 {
                     if (DateTime.Now > subscriber.nextUpdateOn)
                     {
-                        _dapperDB.UpdateDucksNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
+                        _dapperDB.UpdateDucksNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(CalcDaysToAddOnNextUpdate(subscriber.nextUpdateOn)));
 
                         if (data == null)
                         {
@@ -135,6 +149,42 @@ namespace TelegramFunFactBot.Classes
                 _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "HandleDuckSubscriber");
             }
         }
+        
+        private async Task HandleAlpacaSubscriber()
+        {
+            RedditPostData data = null;
+            int maxNumberOfPosts = 5;
+
+            try
+            {
+                var subscribers = await _dapperDB.GetAllAlpacaSubscriber();
+                foreach (var subscriber in subscribers)
+                {
+                    if (DateTime.Now > subscriber.nextUpdateOn)
+                    {
+                        _dapperDB.UpdateAlpacasNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(CalcDaysToAddOnNextUpdate(subscriber.nextUpdateOn)));
+
+                        if (data == null)
+                        {
+                            data = await _redditPostHandler.GetRedditTopPostWithImageData("alpaca", maxNumberOfPosts);
+                        }
+
+                        if (data.imageUrl != "")
+                        {
+                            _telegram.SendImage(subscriber.chatId, data.imageUrl, "<b>" + data.title + "</b> - Source: https://www.reddit.com" + data.permalink, "html");
+                        }
+                        else
+                        {
+                            _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", "Reddit didn't provide an image in the top 5 posts :(", "HandleAlpacaSubscriber");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _dapperDB.WriteEventLog("CheckForSubscribedServices", "Error", e.Message, "HandleAlpacaSubscriber");
+            }
+        }
 
         private async Task HandleMemeSubscriber()
         {
@@ -148,7 +198,7 @@ namespace TelegramFunFactBot.Classes
                 {
                     if (DateTime.Now > subscriber.nextUpdateOn)
                     {
-                        _dapperDB.UpdateMemesNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
+                        _dapperDB.UpdateMemesNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(CalcDaysToAddOnNextUpdate(subscriber.nextUpdateOn)));
 
                         if (data == null)
                         {
@@ -186,7 +236,7 @@ namespace TelegramFunFactBot.Classes
                 {
                     if (DateTime.Now > subscriber.nextUpdateOn)
                     {
-                        _dapperDB.UpdateDeutscheMemesNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
+                        _dapperDB.UpdateDeutscheMemesNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(CalcDaysToAddOnNextUpdate(subscriber.nextUpdateOn)));
 
                         if (data == null)
                         {
@@ -230,7 +280,7 @@ namespace TelegramFunFactBot.Classes
                 {
                     if (DateTime.Now > subscriber.nextUpdateOn)
                     {
-                        _dapperDB.UpdateFunFactNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(1));
+                        _dapperDB.UpdateFunFactNextUpdateOn(subscriber.chatId, subscriber.nextUpdateOn.AddDays(CalcDaysToAddOnNextUpdate(subscriber.nextUpdateOn)));
 
                         var response = await _httpHandler.Get("https://uselessfacts.jsph.pl/today.json?language=de");
                         string responseBody = await response.Content.ReadAsStringAsync();

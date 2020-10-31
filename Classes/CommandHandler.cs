@@ -186,7 +186,7 @@ namespace TelegramFunFactBot.Classes
                             await _telegram.SendMessage(chatId, "Successfully unsubscribed from CSGO Updates");
                             break;
                         case "/subalmanmemes":
-                        case "/subalmanememes@sbrcs_bot":
+                        case "/subalmanmemes@sbrcs_bot":
                             SubscribeToDeutscheMemes(command, chatId);
                             await _telegram.SendMessage(chatId, "Successfully subscribed to Ich_Iel Memes");
                             break;
@@ -229,9 +229,19 @@ namespace TelegramFunFactBot.Classes
                             await _telegram.SendMessage(chatId, "Successfully subscribed to awesome duck images");
                             break;
                         case "/unsubducks":
-                        case "/unsubduck@sbrcs_bot":
+                        case "/unsubducks@sbrcs_bot":
                             UnsubscribeFromDucks(chatId);
                             await _telegram.SendMessage(chatId, "Successfully unsubscribed from duck images");
+                            break;
+                        case "/subalpacas":
+                        case "/subalpacas@sbrcs_bot":
+                            SubscribeToAlpacas(command, chatId);
+                            await _telegram.SendMessage(chatId, "Successfully subscribed to awesome alpaca images");
+                            break;
+                        case "/unsubalpacas":
+                        case "/unsubalpacas@sbrcs_bot":
+                            UnsubscribeFromAlpacas(chatId);
+                            await _telegram.SendMessage(chatId, "Successfully unsubscribed from alpaca images");
                             break;
                         default:
                             /* Fall through */
@@ -282,6 +292,45 @@ namespace TelegramFunFactBot.Classes
             }
 
             _dapperDB.SubscribeToDucks(chatId, timeToUpdate);
+        }
+        
+        private void UnsubscribeFromAlpacas(string chatId)
+        {
+            _dapperDB.UnsubscribeFromAlpacasAsync(chatId);
+        }
+
+        private void SubscribeToAlpacas(string[] command, string chatId)
+        {
+            DateTime timeToUpdate = DateTime.Now;
+
+            try
+            {
+                if (command.Length > 1) //this means after the command there is a property provided
+                {
+                    var time = command[1].Split(":");
+
+                    if (time.Length == 2)
+                    {
+                        int hours = Int32.Parse(time[0]);
+                        int minutes = Int32.Parse(time[1]);
+
+                        if ((hours >= 0 && hours <= 24) && (minutes >= 0 && minutes <= 59))
+                        {
+                            timeToUpdate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hours, minutes, 0);
+                            if (timeToUpdate < DateTime.Now)
+                            {
+                                timeToUpdate = timeToUpdate.AddDays(1);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                /*Fall through*/
+            }
+
+            _dapperDB.SubscribeToAlpacasAsync(chatId, timeToUpdate);
         }
 
         private void UnsubscribeFromCsgoUpdates(string chatId)
