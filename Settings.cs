@@ -14,5 +14,8 @@ namespace TelegramFunFactBot
         public string dbInitCat { get; set; }
         public string ideaChatId { get; set; }
         public string devChatId { get; set; }
+        public string dcMiddlewareApiKey { get; set; }
+        public ulong dcAufAbrufId { get; set; }
+        public ulong dcAufAbrufRoleId { get; set; }
     }
 }

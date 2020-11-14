@@ -233,3 +233,8 @@ _Pvt_Extensions
 
 appsettings.json
 appsettings.Development.json
+
+# Remove ConvertDict so tlgrm ids and discord ids stay private
+ConvertDict.cs
+
+Properties/ServiceDependencies/

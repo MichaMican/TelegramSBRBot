@@ -1,6 +1,6 @@
 New commands:
-<b>/subalpacas</b> subscribes you to a daily dose of ducks :)
-<b>/unsubalpacas</b> unsubscribes you from your daily dose of ducks :(
+<b>/subalpacas</b> subscribes you to a daily dose of alpacas :)
+<b>/unsubalpacas</b> unsubscribes you from your daily dose of alpacas :(
 Further changes:
 - introducing alpaca image subscribe service: receive a every day a alpaca image at a fixed time
 - improve recovering which prevents message spamming after downtime
