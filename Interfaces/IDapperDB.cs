@@ -43,5 +43,10 @@ namespace TelegramFunFactBot.Interfaces
         void UnsubscribeFromAlpacasAsync(string chatId);
         void SubscribeToAlpacasAsync(string chatId, DateTime timeToUpdate);
         void UpdateAlpacasNextUpdateOn(string chatId, DateTime nextUpdateOn);
+        Task<List<ReadyToPlayUsers>> GetReadyToPlayUsers();
+        Task ClearReadyPlayersWhichReachedEndDate();
+        Task ResetReadyPlayers();
+        Task DeleteReadyPlayer(string tlgrmId);
+        Task InsertReadyPlayer(ReadyToPlayUsers user);
     }
 }

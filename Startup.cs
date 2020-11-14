@@ -35,6 +35,7 @@ namespace TelegramFunFactBot
             services.AddSingleton<IHttpHandler, HttpHandler>();
             services.AddSingleton<IUpdateNotifyHandler, UpdateNotifyHandler>();
             services.AddSingleton<IRedditPostHandler, RedditPostHandler>();
+            services.AddSingleton<IDiscordAPICommunicator, DiscordAPICommunicator>();
 
             services.AddControllersWithViews().AddNewtonsoftJson();
         }

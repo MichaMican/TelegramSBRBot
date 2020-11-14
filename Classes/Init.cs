@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using TelegramFunFactBot.Classes.Dapper.Tables;
 using TelegramFunFactBot.Classes.RedditPostsClasses;
 using TelegramFunFactBot.Interfaces;
 
@@ -17,13 +19,17 @@ namespace TelegramFunFactBot.Classes
         private readonly IDapperDB _dapperDB;
         private readonly IHttpHandler _httpHandler;
         private readonly IRedditPostHandler _redditPostHandler;
+        private readonly IDiscordAPICommunicator _dc;
+        private readonly Settings _settings;
 
-        public Init(ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
+        public Init(IOptions<Settings> settings, IDiscordAPICommunicator dc, ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
         {
+            _settings = settings.Value;
             _telegram = telegram;
             _dapperDB = dapperDB;
             _httpHandler = httpHandler;
             _redditPostHandler = redditPostHandler;
+            _dc = dc;
         }
 
         public async void CheckForSubscribedServices()
@@ -37,12 +43,58 @@ namespace TelegramFunFactBot.Classes
                 await HandleAlpacaSubscriber();
                 await UpdateCountDowns();
                 await CheckForCsgoUpdate();
+                await HandleReadyToPlay();
             }
             catch (Exception e)
             {
                 _dapperDB.WriteEventLog("Init", "Error", "There was an error" + e.Message, "CheckForSubscribedServices");
             }
 
+        }
+
+        private async Task HandleReadyToPlay()
+        {
+            var readyPlayers = await _dapperDB.GetReadyToPlayUsers();
+            var dcUsersInAufAbruf = await _dc.GetUsersInChannel(_settings.dcAufAbrufId);
+
+            foreach(var player in readyPlayers)
+            {
+                if (player.readyEndDate < DateTime.UtcNow)
+                {
+                    try
+                    {
+                        await _dc.RemoveRoleFromUser(Convert.ToUInt64(player.dcId), _settings.dcAufAbrufRoleId);
+                    }
+                    catch
+                    {
+                        //Fall through
+                    }
+                    await _dapperDB.DeleteReadyPlayer(player.tlgrmId);
+                }
+            };
+
+            foreach(var dcUser in dcUsersInAufAbruf)
+            {
+                if(!readyPlayers.Where((e) => { return e.dcId == dcUser.id.ToString(); }).Any())
+                {
+                    string tlgrmId = null;
+                    ConvertDict.DcID2TlgrmID.TryGetValue(dcUser.id.ToString(), out tlgrmId);
+
+                    if (!String.IsNullOrEmpty(tlgrmId))
+                    {
+                        await _dapperDB.InsertReadyPlayer(new ReadyToPlayUsers()
+                        {
+                            tlgrmId = tlgrmId,
+                            dcId = dcUser.id.ToString(),
+                            readyStartDate = DateTime.UtcNow,
+                            readyEndDate = DateTime.UtcNow.AddHours(1)
+                        });
+
+                        await _dc.AddRoleToUser(dcUser.id, _settings.dcAufAbrufRoleId);
+
+                    }
+                }
+            }
         }
 
         private async Task CheckForCsgoUpdate()

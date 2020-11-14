@@ -473,5 +473,86 @@ namespace TelegramFunFactBot.Classes.Dapper
         {
             await UpdateNextUpdateOn<AlpacaSubscriber>(chatId, nextUpdateOn);
         }
+
+        public async Task<List<ReadyToPlayUsers>> GetReadyToPlayUsers()
+        {
+            var listToReturn = new List<ReadyToPlayUsers>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    listToReturn = (await connection.GetAllAsync<ReadyToPlayUsers>()).ToList();
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+
+            return listToReturn;
+        }
+
+        public async Task ClearReadyPlayersWhichReachedEndDate()
+        {
+            try
+            {
+                string sql = "DELETE FROM ReadyToPlayUsers WHERE readyEndDate < GETDATE()";
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.ExecuteAsync(sql);
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
+
+        public async Task ResetReadyPlayers()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.DeleteAllAsync<ReadyToPlayUsers>();
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
+
+        public async Task InsertReadyPlayer(ReadyToPlayUsers user)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.InsertAsync(user);
+                }
+            }
+            catch (Exception e)
+            {
+                //Fall through
+            }
+        }
+
+        public async Task DeleteReadyPlayer(string tlgrmId)
+        {
+            try
+            {
+                string sql = "DELETE FROM ReadyToPlayUsers WHERE tlgrmId = @tlgrmId";
+                using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+                {
+                    await connection.ExecuteAsync(sql, new { tlgrmId = tlgrmId });
+                }
+            }
+            catch
+            {
+                //Fall through
+            }
+        }
     }
 }
