@@ -75,3 +75,8 @@ New commands:
 Further changes:
 - introducing alpaca image subscribe service: receive a every day a alpaca image at a fixed time
 - improve recovering which prevents message spamming after downtime
+------------------------------------------------
+v1.0.0
+New commands:
+Further changes:
+- add ready2Play functionality (Feature is Team SBR exclusive)

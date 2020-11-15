@@ -89,13 +89,13 @@ namespace TelegramFunFactBot.Classes
             if (ConvertDict.TlgrmID2DcID.ContainsKey(userId))
             {
                 string dcId;
-                int readyHours;
+                float readyHours;
                 DateTime readyEnds;
 
                 var readyPlayers = await _dapperDB.GetReadyToPlayUsers();
                 ConvertDict.TlgrmID2DcID.TryGetValue(userId, out dcId);
 
-                if (command.Length >= 2 && Int32.TryParse(command[2], out readyHours))
+                if (command.Length >= 2 && float.TryParse(command[2], out readyHours))
                 {
                     readyEnds = DateTime.UtcNow.AddHours(readyHours);
                 }
