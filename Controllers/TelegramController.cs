@@ -7,30 +7,39 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using TelegramFunFactBot.Classes.Dapper.Tables;
 using TelegramFunFactBot.Classes.HelperClasses;
 using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     public class TelegramController : Controller
     {
         private readonly ICommandHandler _commandHandler;
         private readonly IDapperDB _dapperDB;
+        private readonly IDiscordAPICommunicator _dc;
         private readonly ITelegramAPICommunicator _telegramAPI;
+        private readonly IBackgroundTask _backgroundTask;
+        private readonly IReadyToPlayHandler _readyToPlayHandler;
+        private readonly Settings _settings;
         private readonly List<long> _blockedUsers = new List<long>()
         {
             -1001353479498
         };
 
-        public TelegramController(ICommandHandler commandHandler, IDapperDB dapperDB, ITelegramAPICommunicator telegramAPI)
+        public TelegramController(IOptions<Settings> settings, IReadyToPlayHandler readyToPlayHandler, IBackgroundTask backgroundTask, IDiscordAPICommunicator dc, ICommandHandler commandHandler, IDapperDB dapperDB, ITelegramAPICommunicator telegramAPI)
         {
+            _settings = settings.Value;
+            _backgroundTask = backgroundTask;
             _commandHandler = commandHandler;
             _dapperDB = dapperDB;
             _telegramAPI = telegramAPI;
+            _readyToPlayHandler = readyToPlayHandler;
+            _dc = dc;
         }
 
-        [HttpPost("new-message")]
+        [HttpPost("telegram/new-message")]
         public ActionResult NewMessage([FromBody]dynamic body)
         {
             try
@@ -63,7 +72,13 @@ namespace TelegramFunFactBot.Controllers
                 return Ok();
             }
 
-
+            return Ok();
+        }
+        
+        [HttpPost("discord/sync")]
+        public async Task<ActionResult> UpdateDC()
+        {
+            await _readyToPlayHandler.UpdateReadyToPlay();
             return Ok();
         }
     }

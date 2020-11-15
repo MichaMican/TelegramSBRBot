@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TelegramFunFactBot.Classes.Dapper.Tables;
 using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot.Classes
@@ -12,24 +13,28 @@ namespace TelegramFunFactBot.Classes
     {
         private readonly ITelegramAPICommunicator _telegram;
         private readonly IDapperDB _dapperDB;
-        private readonly IInit _init;
+        private readonly IBackgroundTask _backgroundTask;
         private readonly IHttpHandler _httpHandler;
         private readonly IRedditPostHandler _redditPostHandler;
+        private readonly IReadyToPlayHandler _readyToPlayHandler;
+        private readonly IDiscordAPICommunicator _dc;
         private readonly Settings _settings;
         private readonly System.Threading.Timer _checkSubServicesThread;
-        public CommandHandler(ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IInit init, IOptions<Settings> settings, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
+        public CommandHandler(IReadyToPlayHandler readyToPlayHandler, IDiscordAPICommunicator dc, ITelegramAPICommunicator telegramAPICommunicator, IDapperDB dapperDB, IBackgroundTask init, IOptions<Settings> settings, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
         {
-            _httpHandler = httpHandler;
             _settings = settings.Value;
+            _readyToPlayHandler = readyToPlayHandler;
+            _dc = dc;
+            _httpHandler = httpHandler;
             _telegram = telegramAPICommunicator;
             _dapperDB = dapperDB;
-            _init = init;
+            _backgroundTask = init;
             _redditPostHandler = redditPostHandler;
             _checkSubServicesThread = new System.Threading.Timer((e) =>
             {
                 try
                 {
-                    _init.CheckForSubscribedServices();
+                    _backgroundTask.CheckForSubscribedServices();
                 }
                 catch
                 {
@@ -112,6 +117,7 @@ namespace TelegramFunFactBot.Classes
                 commands = DecodeCommand(messageText, entities);
             }
 
+            string userId = body.message.from.id;
             string chatId = body.message.chat.id;
             string chatType = body.message.chat.type;
             string username = body.message.from.username;
@@ -243,6 +249,24 @@ namespace TelegramFunFactBot.Classes
                             UnsubscribeFromAlpacas(chatId);
                             await _telegram.SendMessage(chatId, "Successfully unsubscribed from alpaca images");
                             break;
+                        case "/aufabruf":
+                        case "/aufabruf@sbrcs_bot":
+                            await _readyToPlayHandler.SetUserAufAbruf(command, userId);
+                            await _telegram.SendMessage(chatId, $"@{username} ist jetzt auf Abruf");
+                            break;
+                        case "/offline":
+                        case "/offline@sbrcs_bot":
+                            await _readyToPlayHandler.RemoveFromAufAbruf(userId);
+                            await _telegram.SendMessage(chatId, $"@{username} ist nicht mehr auf Abruf");
+                            break;
+                        case "/whosready":
+                        case "/whosready@sbrcs_bot":
+                            if(ConvertDict.TlgrmID2DcID.ContainsKey(userId))
+                            {
+                                var msg = await _readyToPlayHandler.GetCurrentReadyStateString();
+                                await _telegram.SendMessage(chatId, msg);
+                            }
+                            break;
                         default:
                             /* Fall through */
                             break;
@@ -254,6 +278,9 @@ namespace TelegramFunFactBot.Classes
                 }
             }
         }
+
+        
+
 
         private void UnsubscribeFromDucks(string chatId)
         {

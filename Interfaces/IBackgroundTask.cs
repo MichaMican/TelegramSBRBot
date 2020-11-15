@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TelegramFunFactBot.Interfaces
 {
-    public interface IInit
+    public interface IBackgroundTask
     {
         void CheckForSubscribedServices();
     }

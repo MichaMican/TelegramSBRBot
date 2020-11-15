@@ -13,16 +13,17 @@ using TelegramFunFactBot.Interfaces;
 
 namespace TelegramFunFactBot.Classes
 {
-    public class Init : IInit
+    public class BackgroundTask : IBackgroundTask
     {
         private readonly ITelegramAPICommunicator _telegram;
         private readonly IDapperDB _dapperDB;
         private readonly IHttpHandler _httpHandler;
         private readonly IRedditPostHandler _redditPostHandler;
         private readonly IDiscordAPICommunicator _dc;
+        private readonly IReadyToPlayHandler _readyToPlayHandler;
         private readonly Settings _settings;
 
-        public Init(IOptions<Settings> settings, IDiscordAPICommunicator dc, ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
+        public BackgroundTask(IOptions<Settings> settings, IReadyToPlayHandler readyToPlayHandler, IDiscordAPICommunicator dc, ITelegramAPICommunicator telegram, IDapperDB dapperDB, IHttpHandler httpHandler, IRedditPostHandler redditPostHandler)
         {
             _settings = settings.Value;
             _telegram = telegram;
@@ -30,6 +31,7 @@ namespace TelegramFunFactBot.Classes
             _httpHandler = httpHandler;
             _redditPostHandler = redditPostHandler;
             _dc = dc;
+            _readyToPlayHandler = readyToPlayHandler;
         }
 
         public async void CheckForSubscribedServices()
@@ -43,7 +45,7 @@ namespace TelegramFunFactBot.Classes
                 await HandleAlpacaSubscriber();
                 await UpdateCountDowns();
                 await CheckForCsgoUpdate();
-                await HandleReadyToPlay();
+                await _readyToPlayHandler.UpdateReadyToPlay();
             }
             catch (Exception e)
             {
@@ -52,50 +54,7 @@ namespace TelegramFunFactBot.Classes
 
         }
 
-        private async Task HandleReadyToPlay()
-        {
-            var readyPlayers = await _dapperDB.GetReadyToPlayUsers();
-            var dcUsersInAufAbruf = await _dc.GetUsersInChannel(_settings.dcAufAbrufId);
-
-            foreach(var player in readyPlayers)
-            {
-                if (player.readyEndDate < DateTime.UtcNow)
-                {
-                    try
-                    {
-                        await _dc.RemoveRoleFromUser(Convert.ToUInt64(player.dcId), _settings.dcAufAbrufRoleId);
-                    }
-                    catch
-                    {
-                        //Fall through
-                    }
-                    await _dapperDB.DeleteReadyPlayer(player.tlgrmId);
-                }
-            };
-
-            foreach(var dcUser in dcUsersInAufAbruf)
-            {
-                if(!readyPlayers.Where((e) => { return e.dcId == dcUser.id.ToString(); }).Any())
-                {
-                    string tlgrmId = null;
-                    ConvertDict.DcID2TlgrmID.TryGetValue(dcUser.id.ToString(), out tlgrmId);
-
-                    if (!String.IsNullOrEmpty(tlgrmId))
-                    {
-                        await _dapperDB.InsertReadyPlayer(new ReadyToPlayUsers()
-                        {
-                            tlgrmId = tlgrmId,
-                            dcId = dcUser.id.ToString(),
-                            readyStartDate = DateTime.UtcNow,
-                            readyEndDate = DateTime.UtcNow.AddHours(1)
-                        });
-
-                        await _dc.AddRoleToUser(dcUser.id, _settings.dcAufAbrufRoleId);
-
-                    }
-                }
-            }
-        }
+        
 
         private async Task CheckForCsgoUpdate()
         {
@@ -113,13 +72,16 @@ namespace TelegramFunFactBot.Classes
 
                     var newestCsUpdate = linkElement.InnerText;
                     string dateString = Regex.Replace(newestCsUpdate, "[^(0-9/).]", "");
-                    string lastCsUpdate = _dapperDB.LoadFromDBStorage("lastCsgoUpdate");
+                    string lastCsUpdate = (await _dapperDB.LoadFromDBStorage("lastCsgoUpdate")).value;
 
                     var link = linkElement.Attributes[0].Value;
 
                     if (lastCsUpdate != dateString)
                     {
-                        _dapperDB.SaveToDBStorage("lastCsgoUpdate", dateString);
+                        await _dapperDB.SaveToDBStorage(new DBStorage(){
+                            key = "lastCsgoUpdate", 
+                            value = dateString 
+                        });
 
                         var firstUpdateLogs = pageDocument.DocumentNode.SelectSingleNode("//*[@id=\"post_container\"]/div[1]");
                         string releaseNotes = "Release Notes:\n";
@@ -133,13 +95,10 @@ namespace TelegramFunFactBot.Classes
 
                         releaseNotes = HttpUtility.HtmlDecode(releaseNotes);
 
-                        if (_dapperDB.LoadFromDBStorage("lastCsgoUpdate") == dateString)
+                        var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
+                        foreach (var sub in subs)
                         {
-                            var subs = await _dapperDB.GetAllCsgoUpdateSubscriber();
-                            foreach (var sub in subs)
-                            {
-                                await _telegram.SendMessage(sub.chatId, "<b>New CS:GO release for " + dateString + "</b>\n"+ link + "\n\nAll past updates: https://blog.counter-strike.net/index.php/category/updates/ \n\n"+ releaseNotes);
-                            }
+                            await _telegram.SendMessage(sub.chatId, "<b>New CS:GO release for " + dateString + "</b>\n"+ link + "\n\nAll past updates: https://blog.counter-strike.net/index.php/category/updates/ \n\n"+ releaseNotes);
                         }
                     }
 

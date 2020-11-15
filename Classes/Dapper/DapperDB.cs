@@ -366,14 +366,14 @@ namespace TelegramFunFactBot.Classes.Dapper
             return await GetSubscribers<CSGOUpdatesSubscriber>();
         }
 
-        public void SaveToDBStorage(string key, string value)
+        public async Task SaveToDBStorage(DBStorage keyValuePair)
         {
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
                 bool keyIsInDB = false;
                 try
                 {
-                    var res = connection.Query<DBStorage>("SELECT * FROM DBStorage WHERE [key]=@key", new { key = key }).ToList();
+                    var res = (await connection.QueryAsync<DBStorage>("SELECT * FROM DBStorage WHERE [key]=@key", new { key = keyValuePair.key })).ToList();
                     keyIsInDB |= res.Count > 0;
                 }
                 catch (Exception e)
@@ -382,14 +382,9 @@ namespace TelegramFunFactBot.Classes.Dapper
                 }
                 if (keyIsInDB)
                 {
-                    var objToUpdate = new DBStorage
-                    {
-                        key = key,
-                        value = value
-                    };
                     try
                     {
-                        connection.Update(objToUpdate);
+                        await connection.UpdateAsync(keyValuePair);
                     }
                     catch (Exception e)
                     {
@@ -399,14 +394,9 @@ namespace TelegramFunFactBot.Classes.Dapper
                 }
                 else
                 {
-                    var objToInsert = new DBStorage
-                    {
-                        key = key,
-                        value = value
-                    };
                     try
                     {
-                        connection.Insert(objToInsert);
+                        await connection.InsertAsync(keyValuePair);
                     }
                     catch (Exception e)
                     {
@@ -418,17 +408,17 @@ namespace TelegramFunFactBot.Classes.Dapper
             }
         }
 
-        public string LoadFromDBStorage(string key)
+        public async Task<DBStorage> LoadFromDBStorage(string key)
         {
             using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
             {
                 try
                 {
-                    return connection.Query<DBStorage>("SELECT * FROM DBStorage WHERE [key]=@key", new { key = key }).ToList().First().value;
+                    return (await connection.QueryAsync<DBStorage>("SELECT * FROM DBStorage WHERE [key] = @key", new { key = key })).ToList().First();
                 }
                 catch (Exception e)
                 {
-                    WriteEventLog("Dapper", "Error", "Could not remove element from countdown table! Error: " + e.Message);
+                    WriteEventLog("Dapper", "Error", "Could Load value from DBStorage! Error: " + e.Message);
                 }
                 return null;
             }

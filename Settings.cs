@@ -17,5 +17,6 @@ namespace TelegramFunFactBot
         public string dcMiddlewareApiKey { get; set; }
         public ulong dcAufAbrufId { get; set; }
         public ulong dcAufAbrufRoleId { get; set; }
+        public string tlgrmSbrGroupId { get; set; }
     }
 }

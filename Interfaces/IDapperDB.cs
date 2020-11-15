@@ -10,8 +10,8 @@ namespace TelegramFunFactBot.Interfaces
     {
         void WriteEventLog(string source, string type, string message, string logGroup = null);
         void WriteRequestLog(string jsonString);
-        void SaveToDBStorage(string key, string value);
-        string LoadFromDBStorage(string key);
+        Task SaveToDBStorage(DBStorage keyValuePair);
+        Task<DBStorage> LoadFromDBStorage(string key);
         Task<string> GetCurrentVersion();
         void UpdateVersion(string newVersion);
         void SubscribeToFunFacts(string chatId, DateTime nextUpdateOn);

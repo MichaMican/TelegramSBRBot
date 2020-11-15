@@ -31,11 +31,12 @@ namespace TelegramFunFactBot
             services.AddSingleton<ICommandHandler, CommandHandler>();
             services.AddSingleton<IDapperDB, DapperDB>();
             services.AddSingleton<ITelegramAPICommunicator, TelegramAPICommunicator>();
-            services.AddSingleton<IInit, Init>();
+            services.AddSingleton<IBackgroundTask, BackgroundTask>();
             services.AddSingleton<IHttpHandler, HttpHandler>();
             services.AddSingleton<IUpdateNotifyHandler, UpdateNotifyHandler>();
             services.AddSingleton<IRedditPostHandler, RedditPostHandler>();
             services.AddSingleton<IDiscordAPICommunicator, DiscordAPICommunicator>();
+            services.AddSingleton<IReadyToPlayHandler, ReadyToPlayHandler>();
 
             services.AddControllersWithViews().AddNewtonsoftJson();
         }
