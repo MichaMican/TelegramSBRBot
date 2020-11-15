@@ -95,7 +95,7 @@ namespace TelegramFunFactBot.Classes
                 var readyPlayers = await _dapperDB.GetReadyToPlayUsers();
                 ConvertDict.TlgrmID2DcID.TryGetValue(userId, out dcId);
 
-                if (command.Length >= 2 && float.TryParse(command[2], out readyHours))
+                if (command.Length >= 2 && float.TryParse(command[1], out readyHours))
                 {
                     readyEnds = DateTime.UtcNow.AddHours(readyHours);
                 }
@@ -161,7 +161,7 @@ namespace TelegramFunFactBot.Classes
             {
                 string playerName = "<error while name conversion>";
                 ConvertDict.TlgrmID2Name.TryGetValue(player.tlgrmId, out playerName);
-                outputMessage += $"<b>{playerName}</b> (Ready until {player.readyEndDate.ToString("hh:mm - dd.MM.yyyy")} (UTC))\n";
+                outputMessage += $"<b>{playerName}</b> (Ready until {player.readyEndDate.ToString("HH:mm - dd.MM.yyyy")} (UTC))\n";
             }
             outputMessage += "\n\n <i>This info is updated every minute</i>";
             return outputMessage;
