@@ -261,6 +261,8 @@ namespace TelegramFunFactBot.Classes
                             break;
                         case "/whosready":
                         case "/whosready@sbrcs_bot":
+                        case "/whoisready":
+                        case "/whoisready@sbrcs_bot":
                             if(ConvertDict.TlgrmID2DcID.ContainsKey(userId))
                             {
                                 var msg = await _readyToPlayHandler.GetCurrentReadyStateString();

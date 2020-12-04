@@ -12,6 +12,6 @@ namespace TelegramFunFactBot.Classes.Dapper.Tables
         [ExplicitKey]
         public string key { get; set; }
         public string value { get; set; }
-        public DateTime dateTimeValue { get; set; }
+        public DateTime? dateTimeValue { get; set; }
     }
 }

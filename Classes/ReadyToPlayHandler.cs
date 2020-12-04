@@ -45,6 +45,7 @@ namespace TelegramFunFactBot.Classes
 
             foreach (var dcUser in dcUsersInAufAbruf)
             {
+                //check if user in Auf abruf channel is already ready
                 if (!readyPlayers.Where((e) => { return e.dcId == dcUser.id.ToString(); }).Any())
                 {
                     string tlgrmId = null;
@@ -65,23 +66,6 @@ namespace TelegramFunFactBot.Classes
                     }
                 }
             }
-
-            readyPlayers = await _dapperDB.GetReadyToPlayUsers();
-            if(readyPlayers.Count == 4)
-            {
-                DateTime lastReadyPlayerNotification = (await _dapperDB.LoadFromDBStorage("lastReadyPlayerNotification")).dateTimeValue;
-                if (lastReadyPlayerNotification == null || lastReadyPlayerNotification.AddMinutes(15) < DateTime.UtcNow)
-                {
-                    await _dapperDB.SaveToDBStorage(new DBStorage()
-                    {
-                        key = "lastReadyPlayerNotification",
-                        dateTimeValue = DateTime.UtcNow
-                    });
-
-                    await _telegram.SendMessage(_settings.tlgrmSbrGroupId, await GetCurrentReadyStateString());
-                }
-            }
-
         }
 
         public async Task SetUserAufAbruf(string[] command, string userId)
@@ -125,11 +109,10 @@ namespace TelegramFunFactBot.Classes
                 UpdateReadyToPlay().Wait();
 
                 readyPlayers = await _dapperDB.GetReadyToPlayUsers();
-                if(readyPlayers.Count >= 5)
+                if (readyPlayers.Count == 4 || readyPlayers.Count == 5)
                 {
                     await _telegram.SendMessage(_settings.tlgrmSbrGroupId, await GetCurrentReadyStateString());
                 }
-
             }
         }
 
@@ -163,7 +146,6 @@ namespace TelegramFunFactBot.Classes
                 ConvertDict.TlgrmID2Name.TryGetValue(player.tlgrmId, out playerName);
                 outputMessage += $"<b>{playerName}</b> (Ready until {player.readyEndDate.ToString("HH:mm - dd.MM.yyyy")} (UTC))\n";
             }
-            outputMessage += "\n\n <i>This info is updated every minute</i>";
             return outputMessage;
         }
     }
